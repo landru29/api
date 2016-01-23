@@ -1,0 +1,65 @@
+<div class="row">
+    <div class="col-md-1">
+    </div>
+    <div class="col-md-10">
+        <ul class="list-unstyled">
+            <li data-ng-repeat="(mainRoute, endpoints) in Main.endpoints">
+                <div class="row main-route" data-ng-click="endpoints.visible = !endpoints.visible">
+                    <div class="col-md-12">
+                        {{mainRoute}}
+                    </div>
+                </div>
+                <div class="row endpoints-list">
+                    <div class="col-md-12">
+                        <ul class="list-unstyled" data-ng-show="endpoints.visible">
+                            <li data-ng-repeat="(route, methods) in endpoints.data">
+                                <ul class="list-unstyled">
+                                    <li data-ng-repeat="(method,metadata) in methods">
+                                        <section class="endpoint">
+                                            <div class="row endpoint-header" data-ng-click="metadata.visible = !metadata.visible">
+                                                <div class="col-md-1">
+                                                    <span class="method method-{{method}}">{{method.toUpperCase()}}</span>
+                                                </div>
+                                                <div class="col-md-5">
+                                                    {{route}}
+                                                </div>
+                                                <div class="col-md-5">
+                                                    {{metadata.description}}
+                                                </div>
+                                                <div class="col-md-1">
+                                                    <span class="deploy-button">{{metadata.visible ? '<' : '>'}}</span>
+                                                </div>
+                                            </div>
+                                            <div data-ng-show="metadata.visible">
+                                                <dl class="dl-horizontal">
+                                                    <dt ng-repeat-start="(parameter, description) in metadata.parameters">
+                                                {{parameter}}
+                                            </dt>
+                                                    <dd ng-repeat-end>
+                                                        <span class="required" data-ng-if="description.required">*</span>
+                                                        <input type="text" data-ng-model="description.value">
+                                                        <em>{{description.type}}</em>
+                                                        <span class="description">({{description.description}})</span>
+                                                    </dd>
+                                                </dl>
+                                                <button class="btn btn-primary" data-ng-click="Main.request(route, method, metadata)">Test</button>
+                                                <div class="result">
+                                                    <div class="success" data-ng-show="metadata.result.success">
+                                                        <pre>{{metadata.result.success | json}}</pre>
+                                                    </div>
+                                                    <div class="error" data-ng-show="metadata.result.error">
+                                                        <pre>{{metadata.result.error | json}}</pre>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </section>
+                                    </li>
+                                </ul>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </li>
+        </ul>
+    </div>
+</div>

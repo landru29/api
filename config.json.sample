@@ -1,0 +1,45 @@
+{
+    "application": {
+        "database": {
+            "host": "localhost",
+            "port": "27017",
+            "name": "test"
+        }
+    },
+    "oauth": {
+        "refresh-token": {
+            "secret": "my refresh token secret",
+            "expire-in-minutes": -1
+        },
+        "access-token": {
+            "secret": "my access token refresh",
+            "expire-in-minutes": 30
+        }
+    },
+    "launcher": {
+        "api": {
+            "nb-forks": 2,
+            "script": "./server.js",
+            "options": {
+                "protocole": "http",
+                "serverName": "localhost",
+                "port": 8080
+            }
+        }
+    },
+    "mail-sender": {
+        "disabled": true,
+        "mailjet": {
+            "key": "xxxx",
+            "secret": "xxxx",
+            "sender": "noreply@free.fr",
+            "subject": "NOOPY - Account recovery"
+        }
+    },
+    "acl": {
+        "ignore":["^/assets.*"]
+    },
+    "doc": {
+        "redirection":"http://localhost:9000"
+    }
+}

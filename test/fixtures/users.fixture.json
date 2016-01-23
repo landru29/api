@@ -1,0 +1,12 @@
+[
+    {
+        "name": "global-fixture1",
+        "email": "global-fixture1@foo.com",
+        "password": "plutot"
+    },
+    {
+        "name": "global-fixture2",
+        "email": "global-fixture2@foo.com",
+        "password": "plutot"
+    }
+]

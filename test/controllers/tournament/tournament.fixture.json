@@ -1,0 +1,12 @@
+[
+    {
+        "name": "foo",
+        "date": "2016/10/02",
+        "sport": "Roller Derby"
+    },
+    {
+        "name": "hello-world",
+        "date": "2016/10/02",
+        "sport": "Basket"
+    }
+]

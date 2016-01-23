@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="fr">
+    <head>
+        <meta charset="utf-8">
+        <title>API Documentation</title>
+        <base href="/">
+
+        <!-- build:css(.) styles/styles.min.css -->
+        <link rel="stylesheet" href="build/styles/style.css">
+        <!-- endbuild -->
+
+
+
+        <!-- build:css(.) styles/vendor.css -->
+        <!-- bower:css -->
+        <link rel="stylesheet" href="bower_components/bootstrap/dist/css/bootstrap.css" />
+        <link rel="stylesheet" href="bower_components/angular-flash-alert/dist/angular-flash.css" />
+        <!-- endbower -->
+        <!-- endbuild -->
+
+    </head>
+    <style>
+        [ng\:cloak], [ng-cloak], [data-ng-cloak], [x-ng-cloak], .ng-cloak, .x-ng-cloak {
+            display: none;
+        }
+    </style>
+    <body>
+        <a id="top"></a>
+        <div class="app-frame">
+            <div class="main-frame" ng-app="Documentation">
+                <div class="header" data-ng-controller="HeaderCtrl as Header">
+                    <a data-ng-hide="Header.isLoggedIn"
+                            href="{{Header.loginUrl}}"
+                            class="btn btn-link pull-left">
+                        Login
+                    </a>
+                    <button data-ng-show="Header.isLoggedIn"
+                            data-ng-click="Header.logout()"
+                            class="btn btn-link pull-left">
+                        Logout
+                    </button>
+                    <h1>API Documentation</h1>
+                </div>
+                <div flash-message="5000" ></div>
+                <div class="container-fluid documentation" ui-view>
+                </div>
+            </div>
+        </div>
+
+    <!-- build:js(.) scripts/vendor.js -->
+    <!-- bower:js -->
+    <script src="bower_components/jquery/dist/jquery.js"></script>
+    <script src="bower_components/angular/angular.js"></script>
+    <script src="bower_components/angular-animate/angular-animate.js"></script>
+    <script src="bower_components/angular-resource/angular-resource.js"></script>
+    <script src="bower_components/angular-bootstrap/ui-bootstrap-tpls.js"></script>
+    <script src="bower_components/bootstrap/dist/js/bootstrap.js"></script>
+    <script src="bower_components/ngstorage/ngStorage.js"></script>
+    <script src="bower_components/angular-ui-router/release/angular-ui-router.js"></script>
+    <script src="bower_components/angular-flash-alert/dist/angular-flash.js"></script>
+    <!-- endbower -->
+    <!-- endbuild -->
+
+    <script src="scripts/config.js"></script>
+
+    <!-- build:js scripts/app.min.js -->
+    <script type="text/javascript" src="scripts/app.js"> </script>
+    <script type="text/javascript" src="scripts/route.js"> </script>
+    <script type="text/javascript" src="scripts/controllers/header.controller.js"> </script>
+    <script type="text/javascript" src="scripts/controllers/main.controller.js"> </script>
+    <script type="text/javascript" src="scripts/services/conf-loader.service.js"></script>
+    <script type="text/javascript" src="scripts/services/login.service.js"></script>
+    <script type="text/javascript" src="scripts/services/oauth.service.js"></script>
+    <script type="text/javascript" src="scripts/services/oauth.interceptor.js"></script>
+    <!-- endbuild -->
+    </body>
+</html>

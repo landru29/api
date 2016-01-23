@@ -1,0 +1,21 @@
+{
+    "name": "Documentation",
+    "version": "0.0.0",
+    "dependencies": {
+        "angular": "1.3.15",
+        "angular-animate": "1.3.15",
+        "angular-resource": "1.3.15",
+        "angular-bootstrap": "0.12.0",
+        "bootstrap": "3.3.1",
+        "ngstorage": "0.3.0",
+        "angular-ui-router": "0.2.15",
+        "angular-flash-alert": "1.1.1",
+        "ngstorage": "0.3.9"
+    },
+    "devDependencies": {
+        "angular-mocks":"1.3.15"
+    },
+    "resolutions": {
+        "angular": "1.3.15"
+    }
+}
