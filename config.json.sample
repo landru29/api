@@ -3,7 +3,9 @@
         "database": {
             "host": "localhost",
             "port": "27017",
-            "name": "test"
+            "name": "test",
+            "user": "user",
+            "password": "password"
         }
     },
     "oauth": {
