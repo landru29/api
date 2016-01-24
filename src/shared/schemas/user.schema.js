@@ -92,8 +92,8 @@ module.exports = function(server) {
 
   UserSchema.methods.generateRefreshToken = function() {
       return server.helpers.oauth.encrypt({
-        _id: user._id,
-        name: user.name
+        _id: this._id,
+        name: this.name
       }, 'refresh-token');
   };
 

@@ -41,9 +41,13 @@ module.exports = function(server) {
         require('./api/api.route.js')(server)
     );
 
+    // Default page
     server.app.get('/', function(req, res) {
         res.render('index.ejs'); // load the index.ejs file
     });
+
+    //Documentation
+    server.app.use('/doc', server.middlewares.fileServer(server.rootFolder + '/doc'));
 
     // =====================================
     // LOGIN ===============================

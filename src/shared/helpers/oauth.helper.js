@@ -1,4 +1,3 @@
-/*global module, require*/
 module.exports = function (server) {
     'use strict';
     var jwt = require('jsonwebtoken');

@@ -20,7 +20,7 @@ var App = function (server) {
         instance: null
     };
     this.packageJson = packageJson;
-    this.rootFolder = __dirname;
+    this.rootFolder = path.dirname(__dirname);
     this.middlewares = {};
     this.controllers = {};
     this.meta = {

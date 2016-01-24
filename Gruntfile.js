@@ -14,7 +14,10 @@ module.exports = function (grunt) {
         project: {
             build: './build',
             dist: './dist',
-            app: './doc',
+            distDoc: './dist/doc',
+            distApi: './dist',
+            appDoc: './doc',
+            appApi: './src',
             bower: './bower_components'
         },
 
@@ -24,7 +27,7 @@ module.exports = function (grunt) {
         express: { // create a server to localhost
             dev: {
                 options: {
-                    bases: ['<%= project.build%>', '<%= project.app%>', __dirname],
+                    bases: ['<%= project.build%>', '<%= project.appDoc%>', __dirname],
                     port: 9000,
                     hostname: "0.0.0.0",
                     livereload: true
@@ -32,7 +35,7 @@ module.exports = function (grunt) {
             },
             prod_check: {
                 options: {
-                    bases: [__dirname + '/<%= project.dist%>'],
+                    bases: [__dirname + '/<%= project.distDoc%>'],
                     port: 3000,
                     hostname: "0.0.0.0",
                     livereload: true
@@ -51,7 +54,7 @@ module.exports = function (grunt) {
 
         watch: { // watch files, trigger actions and perform livereload
             dev: {
-                files: ['<%= project.app%>/index.html', '<%= project.app%>/scripts/**/*.js', '<%= project.app%>/**/*.less', '<%= project.app%>/views/**'],
+                files: ['<%= project.appDoc%>/index.html', '<%= project.appDoc%>/scripts/**/*.js', '<%= project.appDoc%>/**/*.less', '<%= project.appDoc%>/views/**'],
                 tasks: [
                     'less:dev',
                     'copy:dev',
@@ -62,31 +65,64 @@ module.exports = function (grunt) {
                 }
             },
             prod_check: {
-                files: ['<%= project.dist%>/**'],
+                files: ['<%= project.distDoc%>/**'],
                 options: {
                     livereload: true
                 }
             }
         },
 
-        jshint: {
-            dev: [
-                '<%= project.app%>/scripts/**/*.js',
-                'Gruntfile.js'
-            ]
+        /*************************************************/
+        /** TASK USED BUILDING API                      **/
+        /*************************************************/
+
+        'file-creator': {
+            api: {
+                files: [
+                    {
+                        file: '<%= project.dist%>/package.json',
+                        method: function (fs, fd, done) {
+                            var packageJson = require('./package.json');
+                            fs.writeSync(fd,
+                                JSON.stringify({
+                                    name: packageJson.name,
+                                    description: 'Production',
+                                    scripts: {
+                                        start: packageJson.scripts.start
+                                    },
+                                    dependencies: packageJson.dependencies
+                                }, null, 4)
+                            );
+                            done();
+                        }
+                    }
+                ]
+            }
         },
 
-        /*************************************************/
-        /** TASK USED BUILDING                          **/
-        /*************************************************/
+        auto_install: {
+            local: {},
+            api: {
+              options: {
+                cwd: '<%= project.dist%>',
+                stdout: true,
+                stderr: true,
+                failOnError: true,
+                npm: '--production'
+              }
+            }
+          },
 
+          /*************************************************/
+          /** TASK USED BUILDING DOC                      **/
+          /*************************************************/
 
         useminPrepare: {
             html: {
-                src: ['<%= project.app%>/index.html']
+                src: ['<%= project.appDoc%>/index.html']
             },
             options: {
-                dest: '<%= project.dist%>',
+                dest: '<%= project.distDoc%>',
                 staging: '<%= project.build%>',
                 root: 'src',
                 flow: {
@@ -103,10 +139,10 @@ module.exports = function (grunt) {
 
         usemin: {
             html: [
-                '<%= project.dist%>/index.html'
+                '<%= project.distDoc%>/index.html'
             ],
             options: {
-                assetsDirs: ['<%= project.dist%>']
+                assetsDirs: ['<%= project.distDoc%>']
             }
         },
 
@@ -136,12 +172,12 @@ module.exports = function (grunt) {
 
         ngtemplates: {
             Documentation: {
-                cwd: '<%= project.app%>',
+                cwd: '<%= project.appDoc%>',
                 src: 'views/**/*.html',
                 dest: '<%= project.build%>/template.js',
                 options: {
                     //prefix: '/',
-                    usemin: '<%= project.dist%>/scripts/app.min.js',
+                    usemin: '<%= project.distDoc%>/scripts/app.min.js',
                     htmlmin: {
                         collapseBooleanAttributes: true,
                         collapseWhitespace: true,
@@ -158,7 +194,7 @@ module.exports = function (grunt) {
 
         wiredep: { // Inject bower components in index.html
             app: {
-                src: ['<%= project.app%>/index.html'],
+                src: ['<%= project.appDoc%>/index.html'],
                 ignorePath: /\.\.\//
             }
         },
@@ -167,16 +203,11 @@ module.exports = function (grunt) {
             /*dist: {
                 files: [
                     {
-                        dest: '<%= project.dist%>/styles/styles.min.css',
-                        src: ['<%= project.app%>/styles/*.css', '<%= project.build%>/styles/*.css']
+                        dest: '<%= project.distDoc%>/styles/styles.min.css',
+                        src: ['<%= project.appDoc%>/styles/*.css', '<%= project.build%>/styles/*.css']
                     }
                 ]
             }*/
-        },
-
-        clean: { // erase all files in dist and build folder
-            dist: ['<%= project.dist%>', '<%= project.build%>'],
-            dev: ['<%= project.build%>']
         },
 
         filerev: { // change the name of files to avoid browser cache issue
@@ -185,103 +216,22 @@ module.exports = function (grunt) {
                 length: 8
             },
             css: {
-                src: '<%= project.dist%>/styles/*.css'
+                src: '<%= project.distDoc%>/styles/*.css'
             },
             js: {
-                src: '<%= project.dist%>/scripts/*.js'
+                src: '<%= project.distDoc%>/scripts/*.js'
             }
         },
 
         less: {
           dev: {
             options: {
-              paths: ["<%= project.dist%>/styles"]
+              paths: ["<%= project.distDoc%>/styles"]
             },
             files: {
-              "<%= project.build%>/styles/style.css": "<%= project.app%>/**/*.less"
+              "<%= project.build%>/styles/style.css": "<%= project.appDoc%>/**/*.less"
             }
           }
-        },
-
-        copy: { // Copy files (images, ...)
-            dist: {
-                files: [
-                    { // Images for the styles
-                        expand: true,
-                        flatten: true,
-                        src: ['<%= project.app%>/styles/img/**'],
-                        dest: '<%= project.dist%>/styles/img'
-                    },
-                    { // glyphicon from bootstrap
-                        expand: true,
-                        flatten: true,
-                        src: ['bower_components/bootstrap/fonts/*'],
-                        filter: 'isFile',
-                        dest: '<%= project.dist%>/fonts'
-                    },
-                    { // favico
-                        expand: true,
-                        flatten: true,
-                        src: ['<%= project.app%>/favicon.ico'],
-                        dest: '<%= project.dist%>/',
-                        filter: 'isFile'
-                    }
-                ],
-            },
-            html: {
-                files: [
-                    {
-                        expand: true,
-                        flatten: true,
-                        src: ['<%= project.app%>/index.html'],
-                        dest: '<%= project.dist%>/',
-                        filter: 'isFile'
-                    }
-                ]
-            },
-            conf: {
-                files: [
-                    {
-                        expand: true,
-                        flatten: false,
-                        cwd: '<%= project.build%>',
-                        src: ['scripts/**/*.js'],
-                        dest: '<%= project.dist%>/',
-                        filter: 'isFile'
-                    }
-                ]
-            },
-            dev: {
-                files: [
-                    {
-                        expand: true,
-                        flatten: true,
-                        src: ['<%= project.app%>/styles/img/**'],
-                        dest: '<%= project.build%>/styles/img'
-                    },
-                ]
-            }
-        },
-
-        'json-minify': {
-            build: {
-                files: '<%= project.dist%>/data/**/*.json'
-            }
-        },
-
-        compress: {
-            main: {
-                options: {
-                    archive: 'dist.tgz'
-                },
-                files: [
-                    {
-                        src: ['<%= project.dist%>/**'],
-                        expand: true,
-                        dest: '.'
-                    }
-                ]
-            }
         },
 
         ngconstant: {
@@ -307,7 +257,116 @@ module.exports = function (grunt) {
                 }
             },
             build: {}
+        },
+
+        'json-minify': {
+            build: {
+                files: '<%= project.distDoc%>/data/**/*.json'
+            }
+        },
+
+
+        /*************************************************/
+        /** TASK USED BUILDING BOTH                     **/
+        /*************************************************/
+
+        copy: { // Copy files (images, ...)
+            api: {
+                files: [
+                    {
+                        expand: true,
+                        flatten: false,
+                        src: ['<%= project.appApi%>/**'],
+                        dest: '<%= project.distApi%>/'
+                    },
+                    {
+                        expand: true,
+                        flatten: true,
+                        src: ['launcher.js'],
+                        dest: '<%= project.distApi%>/'
+                    },
+                    {
+                        expand: true,
+                        flatten: true,
+                        src: ['config.json'],
+                        dest: '<%= project.distApi%>/'
+                    }
+                ]
+            },
+            dist: {
+                files: [
+                    { // Images for the styles
+                        expand: true,
+                        flatten: true,
+                        src: ['<%= project.appDoc%>/styles/img/**'],
+                        dest: '<%= project.distDoc%>/styles/img'
+                    },
+                    { // glyphicon from bootstrap
+                        expand: true,
+                        flatten: true,
+                        src: ['bower_components/bootstrap/fonts/*'],
+                        filter: 'isFile',
+                        dest: '<%= project.distDoc%>/fonts'
+                    },
+                    { // favico
+                        expand: true,
+                        flatten: true,
+                        src: ['<%= project.appDoc%>/favicon.ico'],
+                        dest: '<%= project.distDoc%>/',
+                        filter: 'isFile'
+                    }
+                ],
+            },
+            html: {
+                files: [
+                    {
+                        expand: true,
+                        flatten: true,
+                        src: ['<%= project.appDoc%>/index.html'],
+                        dest: '<%= project.distDoc%>/',
+                        filter: 'isFile'
+                    }
+                ]
+            },
+            conf: {
+                files: [
+                    {
+                        expand: true,
+                        flatten: false,
+                        cwd: '<%= project.build%>',
+                        src: ['scripts/**/*.js'],
+                        dest: '<%= project.distDoc%>/',
+                        filter: 'isFile'
+                    }
+                ]
+            },
+            dev: {
+                files: [
+                    {
+                        expand: true,
+                        flatten: true,
+                        src: ['<%= project.appDoc%>/styles/img/**'],
+                        dest: '<%= project.build%>/styles/img'
+                    },
+                ]
+            }
+        },
+
+        jshint: {
+            doc: [
+                '<%= project.appDoc%>/scripts/**/*.js',
+                'Gruntfile.js'
+            ],
+            api: [
+                '<%= project.appApi%>/**/*.js'
+            ]
+        },
+
+        clean: { // erase all files in dist and build folder
+            dist: ['<%= project.dist%>', '<%= project.build%>'],
+            dev: ['<%= project.build%>']
         }
+
     });
 
     grunt.registerTask('serve', [
@@ -321,9 +380,15 @@ module.exports = function (grunt) {
         'watch:dev'
     ]);
 
-    grunt.registerTask('prod', [
-        'jshint',
-        'clean:dist',
+    grunt.registerTask('dist-api', [
+        'jshint:api',
+        'copy:api',
+        'file-creator:api',
+        'auto_install:api'
+    ]);
+
+    grunt.registerTask('dist-doc', [
+        'jshint:doc',
         'ngconstant:dist',
         'wiredep',
         'useminPrepare',
@@ -336,9 +401,12 @@ module.exports = function (grunt) {
         'copy',
         'filerev:js',
         'filerev:css',
-        'usemin',
-        'compress'
+        'usemin'
     ]);
 
-    grunt.registerTask('default', ['prod']);
+    grunt.registerTask('default', [
+        'clean:dist',
+        'dist-api',
+        'dist-doc'
+    ]);
 };
