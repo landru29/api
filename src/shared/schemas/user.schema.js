@@ -51,6 +51,10 @@ module.exports = function(server) {
       type: Boolean,
       default: true
     },
+    verified: {
+      type: Boolean,
+      default: false
+    },
     role: {
       type: String,
       default: 'user'
@@ -61,8 +65,8 @@ module.exports = function(server) {
   // generating a hash
 
   // checking if password is valid
-  UserSchema.methods.comparePassword = function(password) {
-    return bcrypt.compareSync(password, this.password);
+  UserSchema.methods.checkUser = function(password) {
+    return (bcrypt.compareSync(password, this.password)) && (this.verified);
   };
 
   UserSchema.pre('save', function(next) {

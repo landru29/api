@@ -160,7 +160,7 @@ module.exports = function(server) {
           reject('Failed to login');
           return callback('Failed to login');
         } else {
-          if (_.first(data).comparePassword(password)) {
+          if (_.first(data).checkUser(password)) {
             var thisUser = _.first(data);
             var resp = {
               'access-token': thisUser.generateAccessToken()
