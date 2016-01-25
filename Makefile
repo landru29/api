@@ -7,6 +7,7 @@ BOWER=bower
 DEL=rm -rf
 ARCHIVE=dist.tar.gz
 BASE=$(shell echo $(baseref) | sed 's/\//\\\//g')\/doc\/
+DOMAIN=$(shell echo $(baseref) |sed 's/http:\/\///')
 HTML=dist/doc/index.html
 HTMLTMP=dist/doc/index.html.new
 TAR=tar czf
@@ -52,9 +53,11 @@ sail_send: docker
 	$(DOCKER) push $(SAIL_REGISTRY)/$(SAIL_TAG)
 
 sail: sail_send
-	$(SAIL) service add $(SAIL_TAG) --batch --publish 80:9000 --network predictor --batch $(PROJECT)
+	$(SAIL) service add $(SAIL_TAG) --batch --publish 80:8080 --network predictor --batch $(PROJECT)
 	$(SAIL) service start --batch $(SAIL_TAG)
+	$(SAIL) service domain attach $(SAIL_TAG) $(DOMAIN)
 
 sail-redeploy: sail_send
 	$(SAIL) service redeploy --batch $(SAIL_TAG)
 	$(SAIL) service start --batch $(SAIL_TAG)
+	$(SAIL) service domain attach $(SAIL_TAG) $(DOMAIN)
