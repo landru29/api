@@ -3,7 +3,7 @@ module.exports = function (server) {
     var express = require('express');
     var router = express.Router();
 
-
+    router.use(server.middlewares.cors);
     router.use(
         server.middlewares.passport.authenticate('token-login', { session: false })
     );

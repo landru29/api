@@ -2,11 +2,13 @@
     {
         "name": "foo1",
         "email": "foo1@foo.com",
-        "password": "plutot"
+        "password": "plutot",
+        "verified": true
     },
     {
         "name": "foo2",
         "email": "foo2@foo.com",
-        "password": "plutot"
+        "password": "plutot",
+        "verified": true
     }
 ]

@@ -20,6 +20,7 @@
     },
     "launcher": {
         "api": {
+            "default": true,
             "nb-forks": 2,
             "script": "./server.js",
             "options": {

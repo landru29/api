@@ -70,6 +70,7 @@ module.exports = function(server) {
             failureFlash : true // allow flash messages
         }),
         function(req, res) {
+            console.log(res.redirection);
             var redirect = url.parse(res.redirection);
             redirect.query = redirect.query ? redirect.query : {};
             redirect.query.accessToken = req.user.generateAccessToken();

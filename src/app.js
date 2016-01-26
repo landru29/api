@@ -12,7 +12,15 @@ var loader = require('./shared/helpers/load.js');
 
 var App = function (server) {
     _.extend(this, server);
-    this.config = require(process.env.NODE_ENV === 'production' ? '../config.json' : '../config.dev.json');
+    if (!this.options) {
+        this.options = {};
+    }
+
+    this.config = require(
+        (process.env.NODE_ENV === 'production') || (this.options.production) ?
+        '../config.json' :
+        '../config.dev.json'
+    );
     this.helpers = {};
     this.mongoose = {
         plugins: [],
@@ -29,9 +37,6 @@ var App = function (server) {
     this.getModel = function (modelName) {
         return this.mongoose.instance.model(modelName);
     };
-    if (!this.options) {
-        this.options = {};
-    }
 };
 
 App.prototype.bootstrap = function(ready) {
@@ -49,12 +54,13 @@ App.prototype.bootstrap = function(ready) {
 
 App.prototype.connectDb = function (callback) {
     var mongooseConnectionChain = 'mongodb://' +
-        this.config.application.database.user ? this.config.application.database.host :'' +
-        this.config.application.database.password ? ':' + this.config.application.database.password : '' +
-        this.config.application.database.user ? '@' : '' +
-        this.config.application.database.host + ':' +
-        this.config.application.database.port + '/' +
-        this.config.application.database.name;
+        (this.config.application.database.user ? this.config.application.database.user :'') +
+        (this.config.application.database.password ? ':' + this.config.application.database.password : '') +
+        (this.config.application.database.user ? '@' : '') +
+        (this.config.application.database.host + ':') +
+        (this.config.application.database.port + '/') +
+        (this.config.application.database.name);
+
     this.mongoose.instance = mongoose.connect(this.options.mongooseConnectionChain ? this.options.mongooseConnectionChain : mongooseConnectionChain, callback);
 };
 

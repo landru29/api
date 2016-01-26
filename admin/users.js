@@ -5,11 +5,24 @@
 
     var chalk = require('chalk');
     var App = require('../src/app.js');
-    var application = new App({
-        options: {
-            logQuiet: true
+
+    var args = {};
+
+    process.argv.forEach(function (val, index, array) {
+        var arg = val.split('=');
+        if (arg[1]) {
+            args[arg[0]] = arg[1];
         }
     });
+
+    var application = new App({
+        options: {
+            logQuiet: true,
+            production: !!args.production
+        }
+    });
+
+    delete args.production;
 
     function display(data) {
         return JSON.stringify(data, null, 4);
@@ -18,14 +31,6 @@
     application.bootstrap(function () {
 
         var controller = application.controllers.user;
-        var args = {};
-
-        process.argv.forEach(function (val, index, array) {
-            var arg = val.split('=');
-            if (arg[1]) {
-                args[arg[0]] = arg[1];
-            }
-        });
 
         if (!args.action) {
             console.log(chalk.red('Missing action=insert|read|delete|update'));

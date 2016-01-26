@@ -30,8 +30,6 @@ module.exports = function(options) {
   //mongoose.connect(configDB.url); // connect to our database
   application.bootstrap(function() {
 
-    expressApp.use(application.middlewares.cors);
-
     require('./config/passport')(application); // pass passport for configuration
 
     // set up our express application
@@ -49,10 +47,6 @@ module.exports = function(options) {
     expressApp.use(application.middlewares.passport.initialize());
     expressApp.use(application.middlewares.passport.session()); // persistent login sessions
     expressApp.use(flash()); // use connect-flash for flash messages stored in session
-
-    //expressApp.use(application.middlewares.passport.authenticate('token-login', { session: false }));
-
-    //expressApp.use(application.middlewares.acl);
 
     /**
      * @followRoute ./server.route.js

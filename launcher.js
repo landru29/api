@@ -4,61 +4,67 @@
     var _ = require('lodash');
     var fs = require('fs');
 
-    if (cluster.isMaster) {
 
-        /*if (!fs.existsSync('./config.json')) {
-            log.fatal('Cannot find config.json');
-            process.exit(1);
-        }*/
-        var config = require('./config.json');
+    function clusterMode(config) {
+        if (cluster.isMaster) {
 
-        var apiProcessList = [];
-        var launcher = config.launcher;
+            var apiProcessList = [];
 
-        for (var key in launcher) {
-            if (launcher.hasOwnProperty(key)) {
-                var forks = launcher[key]['nb-forks'];
-                console.log('Creating ' + forks + ' processes of ' + key);
-                var options = launcher[key].options;
+            _.forEach(config.launcher, function(launcher, name) {
+                var forks = launcher['nb-forks'];
+                console.log('Creating ' + forks + ' processes of ' + name);
                 for (var i = 0; i < forks; i++) {
                     apiProcessList.push({
                         pid: cluster.fork({
-                            file: launcher[key].script,
-                            options: JSON.stringify(options)
+                            file: launcher.script,
+                            options: JSON.stringify(launcher.options)
                         }).process.pid,
-                        file: key,
-                        options: JSON.stringify(options)
+                        file: name,
+                        options: JSON.stringify(launcher.options)
                     });
                 }
-            }
-        }
+            });
 
-        /**
-         * Check which process died and relaunch it
-         */
-        var checkForRelaunch = function(processList, worker) {
-            var index = _.findIndex(processList, {pid: worker.process.pid});
-            if (index > -1) {
-                processList[index] = {
-                    file: processList[index].file,
-                    options :processList[index].options,
-                    pid: cluster.fork({
+            /**
+             * Check which process died and relaunch it
+             */
+            var checkForRelaunch = function(processList, worker) {
+                var index = _.findIndex(processList, {pid: worker.process.pid});
+                if (index > -1) {
+                    processList[index] = {
                         file: processList[index].file,
-                        options :processList[index].options
-                    })
-                };
-                return true;
-            }
-            return false;
-        };
+                        options :processList[index].options,
+                        pid: cluster.fork({
+                            file: processList[index].file,
+                            options :processList[index].options
+                        })
+                    };
+                    return true;
+                }
+                return false;
+            };
 
-        // relaunch process if dying
-        cluster.on('exit', function (worker) {
-            console.error('Worker ' + worker.process.pid + ' died :(');
-            checkForRelaunch(apiProcessList, worker);
-        });
+            // relaunch process if dying
+            cluster.on('exit', function (worker) {
+                console.error('Worker ' + worker.process.pid + ' died :(');
+                checkForRelaunch(apiProcessList, worker);
+            });
 
+        } else {
+            console.log('Launching', process.env.file);
+            require(process.env.file)(JSON.parse(process.env.options));
+        }
+    }
+
+    function monoThreadMode(config) {
+        var defaultProcess = _.find(config.launcher, {default:true});
+        console.log('Launching mono-thread', defaultProcess.script);
+        require(defaultProcess.script)(defaultProcess.options);
+    }
+
+
+    if (process.env.MONO_THREAD) {
+        monoThreadMode(require('./config.json'));
     } else {
-        console.log('Launching', process.env.file);
-        require(process.env.file)(JSON.parse(process.env.options));
+        clusterMode(require('./config.json'));
     }

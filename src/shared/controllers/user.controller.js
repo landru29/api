@@ -44,6 +44,7 @@ module.exports = function(server) {
   function createUser(userData /*, callback*/ ) {
     var callback = server.helpers.getCallback(arguments);
     var user = new User();
+    user.verified = !!userData.verified;
     user.name = userData.name;
     user.email = userData.email;
     user.password = userData.password;
@@ -98,6 +99,9 @@ module.exports = function(server) {
         }
         if (userData.name) {
           user.name = userData.name;
+        }
+        if (undefined !== userData.verified) {
+          user.verified = !!userData.verified;
         }
         if (userData.password) {
           user.password = userData.password;
