@@ -6,19 +6,12 @@ angular.module('Documentation', [
     'ngAnimate',
     'flash',
     'doc.config',
-    'ngStorage'
+    'ngStorage',
+    'api-plugin'
 ]);
 
 angular.module('Documentation').config(function($urlRouterProvider, $locationProvider, $httpProvider) {
         'use strict';
         $urlRouterProvider.otherwise('/');
         $locationProvider.html5Mode(true);
-        $httpProvider.interceptors.push('OAuthInterceptor');
-    })
-.run(function($location, $localStorage) {
-    if ($location.search().accessToken) {
-        $localStorage.accessToken = $location.search().accessToken;
-        $location.search('accessToken', null);
-        $location.path($location.absUrl());
-    }
-});
+    });

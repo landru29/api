@@ -33,7 +33,8 @@ module.exports = function(server) {
     /** Create an application
      * @name /
      * @method POST
-     * @param {String} name     @body @required Application name
+     * @param {String} name        @body @required Application name
+     * @param {String} redirection @body @required Redirection url
      * @role admin
      */
     router.post('/', function(req, res) {
@@ -59,8 +60,10 @@ module.exports = function(server) {
      * Update an application
      * @name /:id
      * @method PUT
-     * @param {String} id       @url  @required Application ID
-     * @param {String} name     @body            Application name
+     * @param {String}  id          @url  @required  Application ID
+     * @param {String}  name        @body            Application name
+     * @param {String}  redirection @body            Redirection url
+     * @param {Boolean} active      @body            Enable application
      * @role admin
      */
     router.put('/:id', function (req, res) {

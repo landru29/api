@@ -2,6 +2,20 @@ angular.module('Documentation').controller('MainCtrl', function($scope, ConfLoad
     'use strict';
     var self = this;
 
+    this.boolean = [
+        {
+            label: ""
+        },
+        {
+            value: true,
+            label: "True"
+        },
+        {
+            value: false,
+            label: "False"
+        }
+    ];
+
 
     this.init = function() {
         (new ConfLoader()).then(

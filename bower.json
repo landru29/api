@@ -7,10 +7,10 @@
         "angular-resource": "1.3.15",
         "angular-bootstrap": "0.12.0",
         "bootstrap": "3.3.1",
-        "ngstorage": "0.3.0",
         "angular-ui-router": "0.2.15",
         "angular-flash-alert": "1.1.1",
-        "ngstorage": "0.3.9"
+        "ngstorage": "0.3.9",
+        "api-plugin":"https://github.com/landru29/api-plugin.git"
     },
     "devDependencies": {
         "angular-mocks":"1.3.15"

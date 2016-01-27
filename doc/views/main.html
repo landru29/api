@@ -37,7 +37,9 @@
                                             </dt>
                                                     <dd ng-repeat-end>
                                                         <span class="required" data-ng-if="description.required">*</span>
-                                                        <input type="text" data-ng-model="description.value">
+                                                        <input data-ng-if="description.type==='String'" type="text" data-ng-model="description.value">
+                                                        <input data-ng-if="description.type==='Number'" type="number" data-ng-model="description.value">
+                                                        <select data-ng-if="description.type==='Boolean'" ng-options="item.value as item.label for item in Main.boolean" ng-model="description.value"></select>
                                                         <em>{{description.type}}</em>
                                                         <span class="description">({{description.description}})</span>
                                                     </dd>

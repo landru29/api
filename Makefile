@@ -53,7 +53,7 @@ sail_send: docker
 	$(DOCKER) push $(SAIL_REGISTRY)/$(SAIL_TAG)
 
 sail: sail_send
-	$(SAIL) service add $(SAIL_TAG) --batch --publish 80:8080 --env MONO_THREAD=true --network predictor --batch $(PROJECT)
+	$(SAIL) service add $(SAIL_TAG) --batch --publish 80:8080 --env MONO_THREAD=true --env API_HOST=$(baseref) --network predictor --batch $(PROJECT)
 	$(SAIL) service start --batch $(SAIL_TAG)
 	$(SAIL) service domain attach $(SAIL_TAG) $(DOMAIN)
 

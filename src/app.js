@@ -16,6 +16,8 @@ var App = function (server) {
         this.options = {};
     }
 
+    this.apiHost = process.env.API_HOST;
+
     this.config = require(
         (process.env.NODE_ENV === 'production') || (this.options.production) ?
         '../config.json' :

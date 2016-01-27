@@ -58,6 +58,7 @@ module.exports = function (server) {
         return q.promise(function (resolve, reject) {
             var application = new Application();
             application.name = applicationData.name;
+            application.redirection = applicationData.redirection;
             application.active = true;
             application.save(function (err, createdApplication) {
                 if (!err) {
@@ -104,6 +105,9 @@ module.exports = function (server) {
                 function(application) {
                     if (applicationData.name) {
                         application.name = applicationData.name;
+                    }
+                    if (applicationData.redirection) {
+                        application.redirection = applicationData.redirection;
                     }
                     if (applicationData.active) {
                         application.active = applicationData.active;
