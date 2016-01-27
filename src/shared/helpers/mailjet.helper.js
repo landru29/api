@@ -4,7 +4,12 @@ module.exports = function (server) {
     var querystring = require('querystring');
     var q = require('q');
 
-    return function (data) {
+    return function (data, callback) {
+
+        if (!callback) {
+            callback = function(){
+            };
+        }
 
         var config = server.config['mail-sender'].mailjet;
 
@@ -36,7 +41,7 @@ module.exports = function (server) {
         };
 
         // API request
-        q.Promise(function (resolve, reject) {
+        return q.Promise(function (resolve, reject) {
             var req = http.request(options, function (res) {
                 server.log.info('[MAILJET: STATUS]', res.statusCode);
                 server.log.info('[MAILJET: HEADERS]', JSON.stringify(res.headers));
@@ -48,12 +53,14 @@ module.exports = function (server) {
                 });
 
                 res.on('error', function (e) {
+                    callback(e);
                     reject(e);
                 });
 
                 res.on('end', function () {
                     server.log.info('[MAILJET: DATA]', str);
                     resolve(str);
+                    callback(null, str);
                 });
 
             });

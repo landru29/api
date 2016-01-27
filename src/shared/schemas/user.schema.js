@@ -33,6 +33,9 @@ module.exports = function(server) {
         emailToken: {
             type: String
         },
+        expireToken: {
+            type: Date
+        },
         facebook: {
             id: String,
             token: String,
@@ -77,6 +80,9 @@ module.exports = function(server) {
     UserSchema.methods.generateEmailToken = function() {
         var uid = uuid.v4();
         this.emailToken = uid;
+        var now = new Date();
+        now.setDate(now.getDate() + 1);
+        this.expireToken= now;
         return uid;
     };
 

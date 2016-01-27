@@ -70,12 +70,25 @@ module.exports = function(application) {
             newUser.email = email;
             newUser.password = password; //newUser.generateHash(password);
 
+            var token = newUser.generateEmailToken();
+
             // save the user
             newUser.save(function(err) {
               if (err) {
                 throw err;
               }
-              return done(null, newUser);
+              var link = 'http' + req.headers.host + '/verify?email=' + encodeURIComponent(email) + "&token=" + encodeURIComponent(token);
+              application.helpers.mailjet({
+                    from: application.config['mail-sender'].mailjet.sender,
+                    to: [email],
+                    subject: application.config['mail-sender'].mailjet.subject,
+                    html: '<h1>Change your password</h1><a href="' + link + '">' + link + '</a>'
+              }, function(err) {
+                    if (err) {
+                        throw err;
+                    }
+                    return done(null, {});
+              });
             });
           }
 
