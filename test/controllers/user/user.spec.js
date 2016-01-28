@@ -139,7 +139,7 @@
             it('Should check a user', function (done) {
                 testFrame().controllers.user.checkUser(fixtures[0].email, fixtures[0].password).then(
                     function (data) {
-                        assert.isDefined(data['access-token']);
+                        assert.isDefined(data.name);
                         done();
                     },
                     function (err) {

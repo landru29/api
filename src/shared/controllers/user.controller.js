@@ -11,8 +11,7 @@ module.exports = function(server) {
      * @returns {Object} Promise
      */
     function readUsers( /*, callback*/ ) {
-        var callback = server.helpers.getCallback(arguments);
-        return User.find(callback);
+        return User.find(server.helpers.getCallback(arguments));
     }
 
     /**
@@ -22,8 +21,7 @@ module.exports = function(server) {
      * @returns {Object} Promise
      */
     function readUserById(id /*, callback*/ ) {
-        var callback = server.helpers.getCallback(arguments);
-        return User.findById(id, callback);
+        return User.findById(id, server.helpers.getCallback(arguments));
     }
 
     /**
@@ -46,12 +44,7 @@ module.exports = function(server) {
 
         return user.save(function(err, createdUser) {
             if (!err) {
-                var resp = _.extend({
-                        'access-token': createdUser.generateAccessToken()
-                    },
-                    createdUser._doc
-                );
-                callback(null, resp);
+                callback(null, createdUser);
             } else {
                 callback(err);
             }
@@ -65,10 +58,9 @@ module.exports = function(server) {
      * @returns {Object} Promise
      */
     function deleteUser(id /*, callback*/ ) {
-        var callback = server.helpers.getCallback(arguments);
         return User.remove({
             _id: id
-        }, callback);
+        }, server.helpers.getCallback(arguments));
     }
 
     /**
@@ -80,23 +72,22 @@ module.exports = function(server) {
      */
     function updateUser(id, userData /*, callback*/ ) {
         var callback = server.helpers.getCallback(arguments);
-        return q.promise(function(resolve, reject) {
-            User.findById(id, function(err, user) {
-                if (err) {
-                    return callback(err);
-                }
-                if (userData.name) {
-                    user.name = userData.name;
-                }
-                if (undefined !== userData.verified) {
-                    user.verified = !!userData.verified;
-                }
-                if (userData.password) {
-                    user.password = userData.password;
-                }
-                if (userData.role) {
-                    user.role = userData.role;
-                }
+        return waterfall([
+            function() {
+                return User.findById(id, function(err, user) {
+                    if (err) {
+                        return callback(err, user);
+                    }
+                });
+            },
+            function(user) {
+                _.extend(
+                    user,
+                    server.helpers.cleanObject(
+                        userData,
+                        ['name', 'verified', 'password', 'role']
+                    )
+                );
                 if (userData.delAppId) {
                     var index = user.applications.indexOf(userData.addAppId);
                     if (index > -1) {
@@ -104,35 +95,15 @@ module.exports = function(server) {
                     }
                 }
                 if (userData.addAppId) {
-                    server.controllers.application.readApplicationById(userData.addAppId).then(
-                        function(app) {
-                            var index = user.applications.indexOf(app._id);
-                            if (index < 0) {
-                                user.applications.push(app);
-                            }
-                            user.save(callback).then(function(data) {
-                                resolve(data);
-                                callback(null, data);
-                            }, function(err) {
-                                reject(err);
-                                callback(err);
-                            });
-                        },
-                        function(err) {
-                            reject(err);
-                            callback(err);
-                        });
-                } else {
-                    user.save(callback).then(function(data) {
-                        resolve(data);
-                        callback(null, data);
-                    }, function(err) {
-                        reject(err);
-                        callback(err);
-                    });
+                    user.applications.push(userData.addAppId);
                 }
-            });
-        });
+                return user.save(callback).then(function(data) {
+                    callback(null, data);
+                }, function(err) {
+                    callback(err);
+                });
+            }
+        ]);
     }
 
     /**
@@ -145,25 +116,17 @@ module.exports = function(server) {
     function checkUser(email, password /*, callback*/ ) {
         var callback = server.helpers.getCallback(arguments);
         return q.promise(function(resolve, reject) {
-            User.find({
-                email: email
-            }, function(err, data) {
-                if (data.length !== 1) {
+            findUserByEmail(email).then(function(user) {
+                if ((user.checkUser(password)) && (user.verified)) {
+                    resolve(user);
+                    return callback(null, user);
+                } else {
                     reject('Failed to login');
                     return callback('Failed to login');
-                } else {
-                    if (_.first(data).checkUser(password)) {
-                        var thisUser = _.first(data);
-                        var resp = {
-                            'access-token': thisUser.generateAccessToken()
-                        };
-                        resolve(resp);
-                        callback(null, resp);
-                    } else {
-                        reject('Failed to login');
-                        return callback('Failed to login');
-                    }
                 }
+            }, function(err) {
+                reject(err);
+                return callback(err);
             });
         });
     }
@@ -178,10 +141,11 @@ module.exports = function(server) {
         return User.find({
             email: email
         }).then(
-            function(data) {
-                if (data.length === 1) {
-                    callback(null, data[0]);
-                    return data[0];
+            function(users) {
+                var currentUser = _.first(users);
+                if (users.length === 1) {
+                    callback(null, currentUser);
+                    return currentUser;
                 } else {
                     callback('User not found');
                     return 'User not found';

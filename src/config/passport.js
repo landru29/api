@@ -46,54 +46,37 @@ module.exports = function(application) {
       // asynchronous
       // User.findOne wont fire unless data is sent back
       process.nextTick(function() {
-
-        // find a user whose email is the same as the forms email
-        // we are checking to see if the user trying to login already exists
-        User.findOne({
-          'email': email
-        }, function(err, user) {
-          // if there are any errors, return the error
-          if (err) {
-            return done(err);
-          }
-
-          // check to see if theres already a user with that email
-          if (user) {
-            return done(null, false, req.flash('signupMessage', 'That email is already taken.'));
-          } else {
-
-            // if there is no user with that email
-            // create the user
-            var newUser = new User();
-
-            // set the user's local credentials
-            newUser.email = email;
-            newUser.password = password; //newUser.generateHash(password);
-
-            var token = newUser.generateEmailToken();
-
-            // save the user
-            newUser.save(function(err) {
+          application.controllers.user.findUserByEmail(email, function(err, user) {
               if (err) {
-                throw err;
+                return done(err);
               }
-              var link = 'http' + req.headers.host + '/verify?email=' + encodeURIComponent(email) + "&token=" + encodeURIComponent(token);
-              application.helpers.mailjet({
-                    from: application.config['mail-sender'].mailjet.sender,
-                    to: [email],
-                    subject: application.config['mail-sender'].mailjet.subject,
-                    html: '<h1>Change your password</h1><a href="' + link + '">' + link + '</a>'
-              }, function(err) {
-                    if (err) {
+
+              if (user) {
+                return done(null, false, req.flash('signupMessage', 'That email is already taken.'));
+              } else {
+                  application.controllers.user.createUser({
+                      email: email,
+                      password: password
+                  }, function(err, newUser) {
+                      if (err) {
                         throw err;
-                    }
-                    return done(null, {});
-              });
-            });
-          }
-
-        });
-
+                      }
+                      var token = newUser.generateEmailToken();
+                      var link = 'http' + req.headers.host + '/verify?email=' + encodeURIComponent(email) + "&token=" + encodeURIComponent(token);
+                      application.helpers.mailjet({
+                            from: application.config['mail-sender'].mailjet.sender,
+                            to: [email],
+                            subject: application.config['mail-sender'].mailjet.subject,
+                            html: '<h1>Change your password</h1><a href="' + link + '">' + link + '</a>'
+                      }, function(err) {
+                            if (err) {
+                                throw err;
+                            }
+                            return done(null, {});
+                      });
+                  });
+              }
+          });
       });
 
     }));
@@ -111,31 +94,12 @@ module.exports = function(application) {
       passReqToCallback: true // allows us to pass back the entire request to the callback
     },
     function(req, email, password, done) { // callback with email and password from our form
-
-      // find a user whose email is the same as the forms email
-      // we are checking to see if the user trying to login already exists
-      User.findOne({
-        'email': email
-      }, function(err, user) {
-        // if there are any errors, return the error before anything else
-        if (err) {
-          return done(err);
-        }
-
-        // if no user is found, return the message
-        if (!user) {
-          return done(null, false, req.flash('loginMessage', 'No user found.')); // req.flash is the way to set flashdata using connect-flash
-        }
-
-        // if the user is found but the password is wrong
-        if (!user.checkUser(password)) {
-          return done(null, false, req.flash('loginMessage', 'Oops! Wrong password.')); // create the loginMessage and save it to session as flashdata
-        }
-
-        // all is well, return successful user
-        return done(null, user);
-      });
-
+        application.controllers.user.checkUser(email, password, function(err, user) {
+            if (err) {
+              return done(err);
+            }
+            return done(null, user);
+        });
     }));
 
   // =========================================================================
@@ -148,7 +112,7 @@ module.exports = function(application) {
     function(token, done) {
         application.helpers.oauth.decrypt(token, 'access-token', function(err, userData) {
             if (userData) {
-                User.findById(userData._id, function(err, user){
+                application.controllers.user.readUserById(userData._id, function(err, user){
                     if (err) {
                       return done(err);
                     }
