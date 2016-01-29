@@ -6,6 +6,11 @@
             "name": "test",
             "user": "user",
             "password": "password"
+        },
+        "domain": {
+            "host": "localhost",
+            "port": "9000",
+            "protocol": "http"
         }
     },
     "oauth": {
