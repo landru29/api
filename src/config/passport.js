@@ -10,6 +10,7 @@ module.exports = function(application) {
 
   var passport = application.middlewares.passport;
   var User = application.getModel('User');
+  var generatePassword = require('password-generator');
 
   // =========================================================================
   // passport session setup ==================================================
@@ -42,37 +43,36 @@ module.exports = function(application) {
       passReqToCallback: true // allows us to pass back the entire request to the callback
     },
     function(req, email, password, done) {
-
+        console.log("doing");
       // asynchronous
       // User.findOne wont fire unless data is sent back
       process.nextTick(function() {
+          console.log("Processing signup");
           application.controllers.user.findUserByEmail(email, function(err, user) {
-              if (err) {
-                return done(err);
-              }
-
-              if (user) {
+              if ((user) || (err !=='User not found')) {
+                  console.log("User exists");
                 return done(null, false, req.flash('signupMessage', 'That email is already taken.'));
               } else {
+                  console.log("Creating user");
                   application.controllers.user.createUser({
                       email: email,
-                      password: password
+                      password: generatePassword(20, false)
                   }, function(err, newUser) {
                       if (err) {
+                          console.log("error on creation", err);
                         throw err;
                       }
                       var token = newUser.generateEmailToken();
-                      var link = 'http' + req.headers.host + '/verify?email=' + encodeURIComponent(email) + "&token=" + encodeURIComponent(token);
-                      application.helpers.mailjet({
-                            from: application.config['mail-sender'].mailjet.sender,
+                      var link = 'http://' + req.headers.host + '/verify?email=' + encodeURIComponent(email) + "&token=" + encodeURIComponent(token);
+                      console.log(link);
+                      application.connectors.mailjet({
                             to: [email],
-                            subject: application.config['mail-sender'].mailjet.subject,
                             html: '<h1>Change your password</h1><a href="' + link + '">' + link + '</a>'
                       }, function(err) {
                             if (err) {
                                 throw err;
                             }
-                            return done(null, {});
+                            return done(null, newUser);
                       });
                   });
               }

@@ -35,11 +35,13 @@
             }
         }
     },
-    "mail-sender": {
-        "disabled": true,
+    "connectors": {
         "mailjet": {
-            "key": "xxxx",
-            "secret": "xxxx",
+            "disabled": true,
+            "vendor": {
+                "key": "xxxx",
+                "secret": "xxxx"
+            },
             "sender": "noreply@free.fr",
             "subject": "NOOPY - Account recovery"
         }

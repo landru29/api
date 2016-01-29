@@ -33,6 +33,7 @@ var App = function (server) {
     this.rootFolder = path.dirname(__dirname);
     this.middlewares = {};
     this.controllers = {};
+    this.connectors = {};
     this.meta = {
         routes: {}
     };
@@ -122,6 +123,15 @@ App.prototype.loadAll = function (mongooseErr, ready) {
         var name = _.camelCase(file.filename.replace(/\..*/, ''));
         console.log('HELPERS: Loading ' + name);
         self.helpers[name] = require(file.fullPathname)(self);
+    });
+
+    // LOAD CONNECTORS
+    // =============================================================================
+    loader(__dirname + '/shared/connectors', /\.connector\.js$/, function (file) {
+        var rawName = file.filename.replace(/\..*/, '');
+        var name = _.camelCase(rawName);
+        console.log('CONNECTORS: Loading ' + name);
+        self.connectors[name] = require(file.fullPathname)(self, self.config.connectors[rawName] ? self.config.connectors[rawName] : {});
     });
 
     // LOAD MIDDLEWARES

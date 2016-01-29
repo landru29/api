@@ -30,7 +30,8 @@
     "q": "1.4.1",
     "promise-waterfall": "0.1.0",
     "express-session": "~1.0.0",
-    "node-uuid": "1.4.7"
+    "node-uuid": "1.4.7",
+    "password-generator": "2.0.2"
   },
     "devDependencies": {
       "chai": "3.2.0",

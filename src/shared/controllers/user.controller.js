@@ -88,15 +88,6 @@ module.exports = function(server) {
                         ['name', 'verified', 'password', 'role']
                     )
                 );
-                if (userData.delAppId) {
-                    var index = user.applications.indexOf(userData.addAppId);
-                    if (index > -1) {
-                        user.applications.splice(userData.delAppId, 1);
-                    }
-                }
-                if (userData.addAppId) {
-                    user.applications.push(userData.addAppId);
-                }
                 return user.save(callback).then(function(data) {
                     callback(null, data);
                 }, function(err) {

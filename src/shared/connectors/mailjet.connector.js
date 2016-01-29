@@ -1,4 +1,4 @@
-module.exports = function (server) {
+module.exports = function (server, config) {
     'use strict';
     var http = require('http');
     var querystring = require('querystring');
@@ -6,22 +6,15 @@ module.exports = function (server) {
 
     return function (data, callback) {
 
-        if (!callback) {
-            callback = function(){
-            };
-        }
-
-        var config = server.config['mail-sender'].mailjet;
-
-        var keyPair = [config.key, config.secret].join(':');
+        var keyPair = [config.vendor.key, config.vendor.secret].join(':');
         var authent = new Buffer(keyPair).toString('base64');
 
         var body = {
-            from: data.from,
+            from: data.from || config.sender,
             to: (data.to ? data.to : []).join(', '),
             cc: (data.cc ? data.cc : []).join(', '),
             bcc: (data.bcc ? data.bcc : []).join(', '),
-            subject: data.subject,
+            subject: data.subject || config.subject,
             html: data.html,
             text: data.text
         };
@@ -43,8 +36,8 @@ module.exports = function (server) {
         // API request
         return q.Promise(function (resolve, reject) {
             var req = http.request(options, function (res) {
-                server.log.info('[MAILJET: STATUS]', res.statusCode);
-                server.log.info('[MAILJET: HEADERS]', JSON.stringify(res.headers));
+                console.log('[MAILJET: STATUS]', res.statusCode);
+                console.log('[MAILJET: HEADERS]', JSON.stringify(res.headers));
                 var str = '';
                 res.setEncoding('utf8');
 
@@ -53,19 +46,23 @@ module.exports = function (server) {
                 });
 
                 res.on('error', function (e) {
-                    callback(e);
+                    if (callback) {
+                        callback(e);
+                    }
                     reject(e);
                 });
 
                 res.on('end', function () {
-                    server.log.info('[MAILJET: DATA]', str);
+                    console.log('[MAILJET: DATA]', str);
                     resolve(str);
-                    callback(null, str);
+                    if (callback) {
+                        callback(null, str);
+                    }
                 });
 
             });
 
-            server.log.info('[MAILJET: BODY]', JSON.stringify(body));
+            console.log('[MAILJET: BODY]', JSON.stringify(body));
             req.write(encodedBody);
 
             req.end();

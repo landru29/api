@@ -85,15 +85,39 @@ module.exports = function(server) {
     server.app.get('/signup', function(req, res) {
 
         // render the page and pass in any flash data if it exists
-        res.render('signup.ejs', { message: req.flash('signupMessage') });
+        res.render('signup.ejs', {
+            message: req.flash('signupMessage'),
+            appId: req.query.appId ? req.query.appId : "doc"
+        });
     });
 
     // process the signup form
     server.app.post('/signup', passport.authenticate('local-signup', {
-        successRedirect : '/', // redirect to root
+        successRedirect : '/signup-done',
         failureRedirect : '/signup', // redirect back to the signup page if there is an error
         failureFlash : true // allow flash messages
     }));
+
+    // End of signup
+    server.app.get('/signup-done', function(req, res) {
+
+        // render the page and pass in any flash data if it exists
+        res.render('signup-done.ejs', {
+            message: req.flash('signupMessage')
+        });
+    });
+
+    // process the signup form
+    server.app.get('/verify', function(req, res) {
+
+        // render the page and pass in any flash data if it exists
+        res.render('verify.ejs', {
+            message: req.flash('signupMessage'),
+            appId: req.query.appId ? req.query.appId : "doc",
+            email: req.query.email,
+            token: req.query.token
+        });
+    });
 
     // =====================================
     // PROFILE SECTION =====================
