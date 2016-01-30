@@ -6,6 +6,19 @@ module.exports = function(server) {
     var waterfall = require('promise-waterfall');
     var generatePassword = require('password-generator');
 
+    function getApplications(user) {
+        var appId = [];
+        if (user.applications) {
+            appId = (_.isArray(user.applications) ? user.applications : [user.applications]);
+
+        }
+
+        var tasks = appId.map(function(app) {
+            return server.controllers.application.readApplicationById(app);
+        });
+        return q.all(tasks);
+    }
+
     /**
      * Read all users
      * @param {function} callback Callback function
@@ -32,7 +45,7 @@ module.exports = function(server) {
      * @returns {Object} Promise
      */
     function createUser(userData /*, callback*/ ) {
-        console.log("Creating user");
+        server.console.log("Creating user");
         var callback = server.helpers.getCallback(arguments);
         var user = new User();
         user.verified = !!userData.verified;
@@ -43,13 +56,36 @@ module.exports = function(server) {
         if (userData.role) {
             user.role = userData.role;
         }
-        return user.save(function(err, createdUser) {
-            if (!err) {
-                callback(null, createdUser);
-            } else {
-                callback(err);
+
+        var tasks = [
+            function(applications) {
+                if (applications) {
+                    user.applications = applications.filter(function(app) {
+                        return !!app;
+                    });
+                }
+                return user.save();
             }
+        ];
+
+        if (userData.applications) {
+            tasks.unshift(
+                function() {
+                    return getApplications(userData);
+                }
+            );
+        }
+
+        return waterfall(tasks).then(function(user) {
+            server.console.log('User creation success');
+            callback(null, user);
+            return user;
+        }, function(err) {
+            server.console.error('User creation error');
+            callback(err);
+            return err;
         });
+
     }
 
     /**
@@ -59,7 +95,7 @@ module.exports = function(server) {
      * @returns {Object} Promise
      */
     function deleteUser(id /*, callback*/ ) {
-        console.log("Deleting user");
+        server.console.log("Deleting user");
         return User.remove({
             _id: id
         }, server.helpers.getCallback(arguments));
@@ -73,7 +109,7 @@ module.exports = function(server) {
      * @returns {Object} Promise
      */
     function updateUser(id, userData /*, callback*/ ) {
-        console.log("Updating user");
+        server.console.log("Updating user");
         var callback = server.helpers.getCallback(arguments);
         return waterfall([
             function() {
@@ -91,6 +127,14 @@ module.exports = function(server) {
                         ['name', 'verified', 'password', 'role']
                     )
                 );
+                if (userData.addAppId) {
+                    user.applications = user.applications.concat(getApplications(userData));
+                }
+                if (userData.delAppId) {
+                    user.applications = user.applications.map(function(application) {
+                        return (user.applications.indexOf(application) < 0);
+                    });
+                }
                 return user.save(callback).then(function(data) {
                     callback(null, data);
                 }, function(err) {
@@ -108,7 +152,7 @@ module.exports = function(server) {
      * @returns {Object} Promise
      */
     function checkUser(email, password /*, callback*/ ) {
-        console.log("Checking user");
+        server.console.log("Checking user");
         var callback = server.helpers.getCallback(arguments);
         return q.promise(function(resolve, reject) {
             findUserByEmail(email).then(function(user) {
@@ -132,7 +176,7 @@ module.exports = function(server) {
      * @returns {Object} Promise
      */
     function findUserByEmail(email /*, callback*/ ) {
-        console.log("Finding user by email");
+        server.console.log("Finding user by email");
         var callback = server.helpers.getCallback(arguments);
         return User.find({
             email: email
@@ -154,11 +198,11 @@ module.exports = function(server) {
         );
     }
 
-    function signup(email /*, callback*/) {
-        console.log("Signing up a user");
+    function signup(email, appId /*, callback*/) {
+        server.console.log("Signing up a user");
         var callback = server.helpers.getCallback(arguments);
         return q.promise(function(resolve, reject) {
-            console.log("Looking for users");
+            server.console.log("Looking for users");
             findUserByEmail(email, function(err, user) {
                 if ((err) && (err !== 'User not found')) {
                     console.log("Error !", "[" + err + "]");
@@ -166,19 +210,17 @@ module.exports = function(server) {
                     return callback(err || 'What happened ?');
                 }
 
-                console.log("Register creation task");
                 var tasks = [
                     function() {
-                        console.log("second");
                         return createUser({
                             email: email,
-                            password: generatePassword(20, false)
+                            password: generatePassword(20, false),
+                            applications:[appId]
                         });
                     }
                 ];
 
                 if ((user) && (!user.verified)) {
-                    console.log("Register deletion task");
                     tasks.unshift(
                         function() {
                             return deleteUser(user.id);
@@ -186,15 +228,12 @@ module.exports = function(server) {
                     );
                 }
 
-                console.log(tasks);
-
-                console.log("Launching tasks");
                 return waterfall(tasks).then(function(newUser) {
-                    console.log("Success !");
+                    server.console.log("Signup success !");
                     resolve(newUser);
                     return callback(null, newUser);
                 }, function(err) {
-                    console.log("Fail !");
+                    server.console.error("Signup fail !");
                     reject(err);
                     return callback(err);
                 });

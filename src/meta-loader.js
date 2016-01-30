@@ -141,7 +141,7 @@ module.exports = function (server) {
                         nodeDescriptor = endpoint[meta.name]['@' + meta.method.toUpperCase()];
                     }
 
-                    console.log('   *', 'META', path.join(baseRoute, meta.name));
+                    server.console.log('   *', 'META', path.join(baseRoute, meta.name));
 
                     nodeDescriptor.acl = {};
                     if (meta.role) {
@@ -190,7 +190,7 @@ module.exports = function (server) {
     if (server.metaScanFile) {
         processFile('', endpoints, server.metaScanFile, true);
     } else {
-        console.warn('No file to scan for metadata');
+        server.console.warn('No file to scan for metadata');
     }
     return endpoints;
 };

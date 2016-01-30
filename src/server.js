@@ -56,10 +56,10 @@ module.exports = function(options) {
     // launch ======================================================================
     try {
       expressApp.listen(port, function() {
-        console.log('Server is listening on port ' + port);
+        application.console.log('Server is listening on port ' + port);
       });
     } catch (error) {
-      console.error('Port ' + port + ' is not free for use');
+      application.console.error('Port ' + port + ' is not free for use');
       throw error;
     }
   });

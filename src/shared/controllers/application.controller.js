@@ -22,16 +22,17 @@ module.exports = function (server) {
      */
     function readApplicationById(id /*, callback*/) {
         var callback = server.helpers.getCallback(arguments);
-        return q.promise(function (resolve, reject) {
-            Application.findById(id, callback).then(
-                function(data) {
-                    resolve(data);
-                },
-                function(err) {
-                    reject(err);
-                }
-            );
-        });
+        console.log('Getting application', id);
+        return Application.findById(id, callback).then(
+            function(data) {
+                callback(null, data);
+                return data;
+            },
+            function(err) {
+                callback(err);
+                return err;
+            }
+        );
     }
 
     /**

@@ -126,12 +126,6 @@ module.exports = function(server) {
     };
 
     var processRelations = function() {
-        UserSchema.add({
-            applications: [{
-                type: mongoose.Schema.Types.ObjectId,
-                ref: 'Application'
-            }]
-        });
     };
 
     return {

@@ -32,20 +32,15 @@ module.exports = function(application) {
   // =========================================================================
   // LOCAL SIGNUP ============================================================
   // =========================================================================
-  // we are using named strategies since we have one for login and one for signup
-  // by default, if there was no name, it would just be called 'local'
-
   passport.use('local-signup', new LocalStrategy({
-      // by default, local strategy uses username and password, we will override with email
       usernameField: 'email',
-      passwordField: 'password',
+      passwordField: 'appId',
       passReqToCallback: true // allows us to pass back the entire request to the callback
     },
-    function(req, email, password, done) {
+    function(req, email, appId, done) {
       // asynchronous
-      // User.findOne wont fire unless data is sent back
       process.nextTick(function() {
-          application.controllers.user.signup(email, function(err, newUser) {
+          application.controllers.user.signup(email, appId, function(err, newUser) {
               if (err) {
                   console.log("error on creation", err);
                 return done(null, false, req.flash('signupMessage', 'Cannot signup with email ' + email));
@@ -69,11 +64,7 @@ module.exports = function(application) {
   // =========================================================================
   // LOCAL LOGIN =============================================================
   // =========================================================================
-  // we are using named strategies since we have one for login and one for signup
-  // by default, if there was no name, it would just be called 'local'
-
   passport.use('local-login', new LocalStrategy({
-      // by default, local strategy uses username and password, we will override with email
       usernameField: 'email',
       passwordField: 'password',
       passReqToCallback: true // allows us to pass back the entire request to the callback
@@ -90,9 +81,6 @@ module.exports = function(application) {
   // =========================================================================
   // TOKEN LOGIN =============================================================
   // =========================================================================
-  // we are using named strategies since we have one for login and one for signup
-  // by default, if there was no name, it would just be called 'local'
-
   passport.use('token-login', new BearerStrategy(
     function(token, done) {
         application.helpers.oauth.decrypt(token, 'access-token', function(err, userData) {

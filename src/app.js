@@ -16,6 +16,8 @@ var App = function (server) {
         this.options = {};
     }
 
+    this.console = require('./shared/helpers/console.js')(this);
+
     this.apiHost = process.env.API_HOST;
 
     this.config = require(
@@ -71,18 +73,27 @@ App.prototype.connectDb = function (callback) {
 App.prototype.reloadModels = function () {
     var self = this;
     Object.keys(this.mongoose.instance.model).forEach(function(modelName){
-        console.log('MODELS:', 'deleting', modelName);
+        self.console.info('MODELS:', 'deleting', modelName);
         delete self.mongoose.instance.model[modelName];
     });
     Object.keys(this.mongoose.schemas).forEach(function(modelName) {
-        console.log('MODELS:', 'creating', modelName);
-        self.mongoose.schemas[modelName].schema.eachPath(function(path) {
-            console.log('  *', path);
-        });
+            self.console.info('MODELS:', 'creating', modelName);
+            self.mongoose.schemas[modelName].schema.eachPath(function(path) {
+                self.console.log('  *', path);
+            });
         self.mongoose.instance.model(modelName, self.mongoose.schemas[modelName].schema);
     });
 };
 
+App.prototype.configureSchemas = function() {
+    var self = this;
+    Object.keys(this.mongoose.schemas).forEach(function(name) {
+        self.helpers.mongoosePlugin(self.mongoose.schemas[name].schema, name);
+        if (self.mongoose.schemas[name]) {
+            self.mongoose.schemas[name].postLoad();
+        }
+    });
+};
 
 App.prototype.loadAll = function (mongooseErr, ready) {
 
@@ -99,7 +110,7 @@ App.prototype.loadAll = function (mongooseErr, ready) {
                         loadRoute(node[subPath], path.join(baseRoute, subPath), collection);
                     } else {
                         var method = subPath.replace(/^@/, '').toLowerCase();
-                        console.log('   *', 'META', baseRoute, method.toUpperCase());
+                        self.console.log('   *', 'META', baseRoute, method.toUpperCase());
                         if (!collection[baseRoute]) {
                             collection[baseRoute] = {};
                         }
@@ -112,18 +123,17 @@ App.prototype.loadAll = function (mongooseErr, ready) {
 
     // LOAD METADATA
     // =============================================================================
-    console.log('Getting meta from source code');
+    self.console.info('META:', 'Getting meta from source code');
     this.meta = {
         routes: require('./meta-loader')(this)
     };
 
     // LOAD HELPERS
     // =============================================================================
-    console.log('HELPERS: Loading load');
     this.helpers.loader = loader;
     loader(__dirname + '/shared/helpers', /\.helper\.js$/, function (file) {
         var name = _.camelCase(file.filename.replace(/\..*/, ''));
-        console.log('HELPERS: Loading ' + name);
+        self.console.info('HELPERS:', 'Loading', name);
         self.helpers[name] = require(file.fullPathname)(self);
     });
 
@@ -132,7 +142,7 @@ App.prototype.loadAll = function (mongooseErr, ready) {
     loader(__dirname + '/shared/connectors', /\.connector\.js$/, function (file) {
         var rawName = file.filename.replace(/\..*/, '');
         var name = _.camelCase(rawName);
-        console.log('CONNECTORS: Loading ' + name);
+        self.console.info('CONNECTORS:', 'Loading', name);
         self.connectors[name] = require(file.fullPathname)(self, self.config.connectors[rawName] ? self.config.connectors[rawName] : {});
     });
 
@@ -140,7 +150,7 @@ App.prototype.loadAll = function (mongooseErr, ready) {
     // =============================================================================
     loader(__dirname + '/shared/middlewares', /\.middleware\.js$/, function (file) {
         var name = _.camelCase(file.filename.replace(/\..*/, ''));
-        console.log('MIDDLEWARES: Loading ' + name);
+        self.console.info('MIDDLEWARES:', 'Loading', name);
         self.middlewares[name] = require(file.fullPathname)(self);
     });
 
@@ -148,7 +158,7 @@ App.prototype.loadAll = function (mongooseErr, ready) {
     // =============================================================================
     loader(__dirname + '/shared/mongoose-plugins', /\.plugin\.js$/, function (file) {
         var name = _.camelCase(file.filename.replace(/\..*/, ''));
-        console.log('MONGOOSE PLUGIN: Loading ' + name);
+        self.console.info('MONGOOSE PLUGIN:', 'Loading', name);
         self.mongoose.plugins[name] = require(file.fullPathname)(self);
     });
 
@@ -158,23 +168,20 @@ App.prototype.loadAll = function (mongooseErr, ready) {
     loader(__dirname + '/shared/schemas', /\.schema\.js$/, function (file) {
         var name = _.capitalize(_.camelCase(file.filename.replace(/\..*/, '')));
         var schemaDescriptor = require(file.fullPathname)(self);
-        console.log('MODELS: Loading ' + name);
-        self.helpers.mongoosePlugin(schemaDescriptor.schema);
+        self.console.info('MODELS:', 'Loading', name);
         self.mongoose.schemas[name] = schemaDescriptor;
     });
-    for (var name in this.mongoose.schemas) {
-        if (this.mongoose.schemas[name].postLoad) {
-            this.mongoose.schemas[name].postLoad();
-        }
-    }
 
+    // CONFIGURE MODELS
+    // =============================================================================
+    this.configureSchemas();
     this.reloadModels();
 
     // LOAD CONTROLLERS
     // =============================================================================
     loader(__dirname + '/shared/controllers', /\.controller\.js$/, function (file) {
         var name = _.camelCase(file.filename.replace(/\..*/, ''));
-        console.log('CONTROLLERS: Loading ' + name);
+        self.console.info('CONTROLLERS:', 'Loading', name);
         self.controllers[name] = require(file.fullPathname)(self);
     });
 
