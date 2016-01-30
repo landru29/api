@@ -78,6 +78,7 @@ module.exports = function(server) {
 
     // generate an email token
     UserSchema.methods.generateEmailToken = function() {
+        server.console.log("Generating email token");
         var uid = uuid.v4();
         this.emailToken = uid;
         var now = new Date();

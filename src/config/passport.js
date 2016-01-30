@@ -45,8 +45,11 @@ module.exports = function(application) {
                   console.log("error on creation", err);
                 return done(null, false, req.flash('signupMessage', 'Cannot signup with email ' + email));
               }
-              var token = newUser.generateEmailToken();
-              var link = 'http://' + req.headers.host + '/verify?email=' + encodeURIComponent(email) + "&token=" + encodeURIComponent(token);
+
+              var link = 'http://' + req.headers.host + '/verify?' +
+                'email=' + encodeURIComponent(email) +
+                '&appId=' + encodeURIComponent(appId) +
+                '&token=' + encodeURIComponent(newUser.emailToken);
               application.connectors.mailjet({
                     to: [email],
                     html: '<h1>Change your password</h1><a href="' + link + '">' + link + '</a>'
@@ -61,6 +64,30 @@ module.exports = function(application) {
 
     }));
 
+    // =========================================================================
+    // CHANGE PASSWORD =============================================================
+    // =========================================================================
+    passport.use('change-password', new LocalStrategy({
+        usernameField: 'email',
+        passwordField: 'token',
+        passReqToCallback: true // allows us to pass back the entire request to the callback
+      },
+      function(req, email, token, done) {
+        // asynchronous
+        process.nextTick(function() {
+            application.console.log(email, token);
+            application.controllers.user.changePassword(email, token, req.body.password1, req.body.password, function(err, user) {
+                if (err) {
+                    application.console.warn("error on password change", err);
+                  return done(null, false, req.flash('signupMessage', 'Cannot change password on ' + email + ': ' + err));
+              } else {
+                  return done(null, user);
+              }
+            });
+        });
+
+      }));
+
   // =========================================================================
   // LOCAL LOGIN =============================================================
   // =========================================================================
@@ -69,11 +96,11 @@ module.exports = function(application) {
       passwordField: 'password',
       passReqToCallback: true // allows us to pass back the entire request to the callback
     },
-    function(req, email, password, done) { // callback with email and password from our form
+    function(req, email, password, done) {
         application.controllers.user.checkUser(email, password, function(err, user) {
             if (err) {
               return done(err);
-            }
+          }
             return done(null, user);
         });
     }));

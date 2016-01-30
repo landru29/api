@@ -20,13 +20,14 @@ module.exports = function(server) {
         var appCtrl = server.controllers.application;
         if (req.body.appId) {
             appCtrl.readApplicationById(req.body.appId, function(err, data) {
-                if (!err) {
+                if ((!err) && (data)) {
+                    server.console.log("Application found", data.name);
                     res.redirection = data.redirection;
                 }
-                next();
+                return next();
             });
         } else {
-            next();
+            return next();
         }
     }
 
@@ -70,10 +71,10 @@ module.exports = function(server) {
             failureFlash : true // allow flash messages
         }),
         function(req, res) {
-            console.log(res.redirection);
             var redirect = url.parse(res.redirection);
             redirect.query = redirect.query ? redirect.query : {};
             redirect.query.accessToken = req.user.generateAccessToken();
+            server.console.log("redirecting to", url.format(redirect));
             res.redirect(url.format(redirect));
         }
     );
@@ -102,9 +103,7 @@ module.exports = function(server) {
     server.app.get('/signup-done', function(req, res) {
 
         // render the page and pass in any flash data if it exists
-        res.render('signup-done.ejs', {
-            message: req.flash('signupMessage')
-        });
+        res.render('signup-done.ejs', {});
     });
 
     // process the signup form
@@ -117,6 +116,20 @@ module.exports = function(server) {
             email: req.query.email,
             token: req.query.token
         });
+    });
+
+    // Change password
+    server.app.post('/verify', passport.authenticate('change-password', {
+        successRedirect : '/verify-done',
+        failureRedirect : '/signup',
+        failureFlash : true // allow flash messages
+    }));
+
+    // End of signup
+    server.app.get('/verify-done', function(req, res) {
+
+        // render the page and pass in any flash data if it exists
+        res.render('verify-done.ejs', {});
     });
 
     // =====================================

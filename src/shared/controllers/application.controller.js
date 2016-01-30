@@ -22,17 +22,24 @@ module.exports = function (server) {
      */
     function readApplicationById(id /*, callback*/) {
         var callback = server.helpers.getCallback(arguments);
-        console.log('Getting application', id);
-        return Application.findById(id, callback).then(
-            function(data) {
-                callback(null, data);
-                return data;
-            },
-            function(err) {
-                callback(err);
-                return err;
+        server.console.log('Getting application', id);
+        return q.promise(function(resolve, reject) {
+            if (/^[0-9a-fA-F]{24}$/.test(id)) {
+                Application.findById(id).then(
+                    function(data) {
+                        resolve(data);
+                        return callback(null, data);
+                    },
+                    function(err) {
+                        reject(err);
+                        return callback(err);
+                    }
+                );
+            } else {
+                reject("Not an application id");
+                return callback("Not an application id");
             }
-        );
+        });
     }
 
     /**

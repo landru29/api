@@ -42,7 +42,7 @@ module.exports = function(options) {
 
     // required for passport
     expressApp.use(session({
-      secret: 'ilovescotchscotchyscotchscotch'
+      secret: application.config.application.session.secret
     })); // session secret
     expressApp.use(application.middlewares.passport.initialize());
     expressApp.use(application.middlewares.passport.session()); // persistent login sessions

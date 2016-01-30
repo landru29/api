@@ -11,6 +11,9 @@
             "host": "localhost",
             "port": "9000",
             "protocol": "http"
+        },
+        "session": {
+            "secret": "session secret"
         }
     },
     "oauth": {

@@ -13,7 +13,10 @@ module.exports = function(server) {
 
         }
 
-        var tasks = appId.map(function(app) {
+        var tasks = appId.filter(function(app) {
+            return /^[0-9a-fA-F]{24}$/.test(app);
+        })
+        .map(function(app) {
             return server.controllers.application.readApplicationById(app);
         });
         return q.all(tasks);
@@ -56,13 +59,18 @@ module.exports = function(server) {
         if (userData.role) {
             user.role = userData.role;
         }
+        if (userData.emailToken) {
+            user.generateEmailToken();
+        }
 
         var tasks = [
             function(applications) {
                 if (applications) {
-                    user.applications = applications.filter(function(app) {
+                    var filteredApplications = applications.filter(function(app) {
                         return !!app;
                     });
+                    server.console.log('applications', filteredApplications);
+                    user.applications = filteredApplications;
                 }
                 return user.save();
             }
@@ -76,16 +84,17 @@ module.exports = function(server) {
             );
         }
 
-        return waterfall(tasks).then(function(user) {
-            server.console.log('User creation success');
-            callback(null, user);
-            return user;
-        }, function(err) {
-            server.console.error('User creation error');
-            callback(err);
-            return err;
+        return q.promise(function(resolve, reject) {
+            waterfall(tasks).then(function(user) {
+                server.console.log('User creation success');
+                callback(null, user);
+                resolve(user);
+            }, function(err) {
+                server.console.error('User creation error', err);
+                callback(err);
+                reject(err);
+            });
         });
-
     }
 
     /**
@@ -176,26 +185,25 @@ module.exports = function(server) {
      * @returns {Object} Promise
      */
     function findUserByEmail(email /*, callback*/ ) {
-        server.console.log("Finding user by email");
+        server.console.log("Finding user by email", email);
         var callback = server.helpers.getCallback(arguments);
-        return User.find({
-            email: email
-        }).then(
-            function(users) {
+        return q.promise(function(resolve, reject){
+            User.find({
+                email: email
+            }).then(function(users) {
                 var currentUser = _.first(users);
                 if (users.length === 1) {
-                    callback(null, currentUser);
-                    return currentUser;
+                    resolve(currentUser);
+                    return callback(null, currentUser);
                 } else {
-                    callback('User not found');
-                    return 'User not found';
+                    reject('User not found');
+                    return callback('User not found');
                 }
-            },
-            function(err) {
-                callback(err);
-                return err;
-            }
-        );
+            }, function(err) {
+                reject(err);
+                return callback(err);
+            });
+        });
     }
 
     function signup(email, appId /*, callback*/) {
@@ -215,7 +223,8 @@ module.exports = function(server) {
                         return createUser({
                             email: email,
                             password: generatePassword(20, false),
-                            applications:[appId]
+                            applications:[appId],
+                            emailToken: true
                         });
                     }
                 ];
@@ -241,6 +250,51 @@ module.exports = function(server) {
         });
     }
 
+    function changePassword(email, token, password, password1) {
+        server.console.log("Change the password of a user");
+        var callback = server.helpers.getCallback(arguments);
+        return q.promise(function(resolve, reject){
+            waterfall([
+                function() {
+                    server.console.log("Passwords equals ?");
+                    return q.promise(function(resolve_, reject_) {
+                        if (password !== password1) {
+                            server.console.warn("no");
+                            reject_("Passwords are not equals");
+                        }
+                        server.console.log("yes");
+                        resolve_();
+                    });
+                },
+                function() {
+                    return findUserByEmail(email);
+                },
+                function(user) {
+                    return q.promise(function(resolve_, reject_) {
+                        server.console.log("Token ok ?");
+                        if (user.emailToken !== token) {
+                            return reject_('Bad token');
+                        }
+                        return resolve_(user);
+                    });
+                },
+                function(user) {
+                    server.console.log("Update user");
+                    user.verified = true;
+                    user.password = password;
+                    return user.save();
+                }
+            ]).then(function(user) {
+                callback(null, user);
+                return resolve(user);
+            }, function(err) {
+                callback(err);
+                return reject(err);
+            });
+        });
+
+    }
+
 
     return {
         readUsers: readUsers,
@@ -250,6 +304,7 @@ module.exports = function(server) {
         readUserById: readUserById,
         checkUser: checkUser,
         findUserByEmail: findUserByEmail,
-        signup: signup
+        signup: signup,
+        changePassword: changePassword
     };
 };
