@@ -6,7 +6,8 @@ module.exports = function (/*server*/) {
         });
 
         schema.pre('save', function (next) {
-            this.lastMod = new Date();
+            console.log("LastModified");
+            this.modifiedAt = new Date();
             next();
         });
     };

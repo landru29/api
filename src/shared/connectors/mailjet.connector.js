@@ -4,7 +4,9 @@ module.exports = function (server, config) {
     var querystring = require('querystring');
     var q = require('q');
 
-    return function (data, callback) {
+    return function (data /*, callback*/) {
+
+        var callback = server.helpers.getCallback(arguments);
 
         var keyPair = [config.vendor.key, config.vendor.secret].join(':');
         var authent = new Buffer(keyPair).toString('base64');
@@ -46,18 +48,14 @@ module.exports = function (server, config) {
                 });
 
                 res.on('error', function (e) {
-                    if (callback) {
-                        callback(e);
-                    }
+                    callback(e);
                     reject(e);
                 });
 
                 res.on('end', function () {
                     console.log('[MAILJET: DATA]', str);
                     resolve(str);
-                    if (callback) {
-                        callback(null, str);
-                    }
+                    callback(null, str);
                 });
 
             });

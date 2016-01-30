@@ -25,7 +25,7 @@ var App = function (server) {
     );
     this.helpers = {};
     this.mongoose = {
-        plugins: [],
+        plugins: {},
         schemas: {},
         instance: null
     };
@@ -69,16 +69,18 @@ App.prototype.connectDb = function (callback) {
 
 
 App.prototype.reloadModels = function () {
-    for (var model in this.mongoose.instance.model) {
-        if (this.mongoose.instance.model.hasOwnProperty(model)) {
-            delete this.mongoose.instance.model[model];
-        }
-    }
-    for (var name in this.mongoose.schemas) {
-        if (this.mongoose.schemas.hasOwnProperty(name)) {
-            this.mongoose.instance.model(name, this.mongoose.schemas[name].schema);
-        }
-    }
+    var self = this;
+    Object.keys(this.mongoose.instance.model).forEach(function(modelName){
+        console.log('MODELS:', 'deleting', modelName);
+        delete self.mongoose.instance.model[modelName];
+    });
+    Object.keys(this.mongoose.schemas).forEach(function(modelName) {
+        console.log('MODELS:', 'creating', modelName);
+        self.mongoose.schemas[modelName].schema.eachPath(function(path) {
+            console.log('  *', path);
+        });
+        self.mongoose.instance.model(modelName, self.mongoose.schemas[modelName].schema);
+    });
 };
 
 

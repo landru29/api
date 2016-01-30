@@ -4,6 +4,7 @@ module.exports = function(server) {
     var _ = require('lodash');
     var q = require('q');
     var waterfall = require('promise-waterfall');
+    var generatePassword = require('password-generator');
 
     /**
      * Read all users
@@ -31,6 +32,7 @@ module.exports = function(server) {
      * @returns {Object} Promise
      */
     function createUser(userData /*, callback*/ ) {
+        console.log("Creating user");
         var callback = server.helpers.getCallback(arguments);
         var user = new User();
         user.verified = !!userData.verified;
@@ -41,7 +43,6 @@ module.exports = function(server) {
         if (userData.role) {
             user.role = userData.role;
         }
-
         return user.save(function(err, createdUser) {
             if (!err) {
                 callback(null, createdUser);
@@ -58,6 +59,7 @@ module.exports = function(server) {
      * @returns {Object} Promise
      */
     function deleteUser(id /*, callback*/ ) {
+        console.log("Deleting user");
         return User.remove({
             _id: id
         }, server.helpers.getCallback(arguments));
@@ -71,6 +73,7 @@ module.exports = function(server) {
      * @returns {Object} Promise
      */
     function updateUser(id, userData /*, callback*/ ) {
+        console.log("Updating user");
         var callback = server.helpers.getCallback(arguments);
         return waterfall([
             function() {
@@ -105,6 +108,7 @@ module.exports = function(server) {
      * @returns {Object} Promise
      */
     function checkUser(email, password /*, callback*/ ) {
+        console.log("Checking user");
         var callback = server.helpers.getCallback(arguments);
         return q.promise(function(resolve, reject) {
             findUserByEmail(email).then(function(user) {
@@ -128,6 +132,7 @@ module.exports = function(server) {
      * @returns {Object} Promise
      */
     function findUserByEmail(email /*, callback*/ ) {
+        console.log("Finding user by email");
         var callback = server.helpers.getCallback(arguments);
         return User.find({
             email: email
@@ -149,44 +154,52 @@ module.exports = function(server) {
         );
     }
 
-    /**
-     * Send a recovery email
-     * @param   {String} email User email
-     * @returns {Object} Promise
-     */
-    function sendRecovery(email /*callback*/ ) {
+    function signup(email /*, callback*/) {
+        console.log("Signing up a user");
         var callback = server.helpers.getCallback(arguments);
-        return waterfall([
-            function() {
-                return findUserByEmail(email);
-            },
-            function(user) {
-                return user.generateEmailToken();
-            },
-            function(token) {
-                console.log('Sending token', token, 'to', email);
-                if (server.config['mail-sender'].disabled) {
-                    return;
-                } else {
-                    var link = server.apiHost + '/verify?email=' + encodeURIComponent(email) + "&token=" + encodeURIComponent(token);
-                    return server.helpers.mailjet({
-                        from: server.config['mail-sender'].mailjet.sender,
-                        to: [email],
-                        subject: server.config['mail-sender'].mailjet.subject,
-                        html: '<h1>Change your password</h1><a href="' + link + '">' + link + '</a>'
-                    });
+        return q.promise(function(resolve, reject) {
+            console.log("Looking for users");
+            findUserByEmail(email, function(err, user) {
+                if ((err) && (err !== 'User not found')) {
+                    console.log("Error !", "[" + err + "]");
+                    reject(err);
+                    return callback(err || 'What happened ?');
                 }
-            }
-        ]).then(
-            function() {
-                callback(null, email);
-                return email;
-            },
-            function(err) {
-                callback(err);
-                return err;
-            }
-        );
+
+                console.log("Register creation task");
+                var tasks = [
+                    function() {
+                        console.log("second");
+                        return createUser({
+                            email: email,
+                            password: generatePassword(20, false)
+                        });
+                    }
+                ];
+
+                if ((user) && (!user.verified)) {
+                    console.log("Register deletion task");
+                    tasks.unshift(
+                        function() {
+                            return deleteUser(user.id);
+                        }
+                    );
+                }
+
+                console.log(tasks);
+
+                console.log("Launching tasks");
+                return waterfall(tasks).then(function(newUser) {
+                    console.log("Success !");
+                    resolve(newUser);
+                    return callback(null, newUser);
+                }, function(err) {
+                    console.log("Fail !");
+                    reject(err);
+                    return callback(err);
+                });
+            });
+        });
     }
 
 
@@ -198,6 +211,6 @@ module.exports = function(server) {
         readUserById: readUserById,
         checkUser: checkUser,
         findUserByEmail: findUserByEmail,
-        sendRecovery: sendRecovery
+        signup: signup
     };
 };
