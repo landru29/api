@@ -14,8 +14,7 @@ module.exports = function(server) {
 
     var UserSchema = new Schema({
         name: {
-            type: String,
-            required: false
+            type: String
         },
         email: {
             type: String,

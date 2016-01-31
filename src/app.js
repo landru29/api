@@ -185,6 +185,15 @@ App.prototype.loadAll = function (mongooseErr, ready) {
         self.controllers[name] = require(file.fullPathname)(self);
     });
 
+    // LOAD CONTROLLERS
+    // =============================================================================
+    loader(__dirname + '/shared/passport', /\.passport\.js$/, function (file) {
+        var name = file.filename.replace(/\..*/, '');
+        self.console.info('PASSPORT STRATEGY:', 'Loading', name);
+        require(file.fullPathname)(self);
+    });
+
+
 
     if (ready) {
         ready(mongooseErr);

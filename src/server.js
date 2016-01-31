@@ -30,8 +30,6 @@ module.exports = function(options) {
   //mongoose.connect(configDB.url); // connect to our database
   application.bootstrap(function() {
 
-    require('./config/passport')(application); // pass passport for configuration
-
     // set up our express application
     expressApp.use(morgan('dev')); // log every request to the console
     expressApp.use(cookieParser()); // read cookies (needed for auth)

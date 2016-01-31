@@ -106,7 +106,12 @@ module.exports = function(server) {
         res.render('signup-done.ejs', {});
     });
 
-    // process the signup form
+
+    // =====================================
+    // CHANGE PASSWORD =====================
+    // =====================================
+
+    // request new password
     server.app.get('/verify', function(req, res) {
 
         // render the page and pass in any flash data if it exists
@@ -127,9 +132,32 @@ module.exports = function(server) {
 
     // End of signup
     server.app.get('/verify-done', function(req, res) {
-
         // render the page and pass in any flash data if it exists
         res.render('verify-done.ejs', {});
+    });
+
+
+    // =====================================
+    // FACEBOOK ROUTES =====================
+    // =====================================
+    // route for facebook authentication and login
+    server.app.get('/auth/facebook', passport.authenticate('facebook', {
+        scope : [
+            'email'
+        ]
+    }));
+
+    // handle the callback after facebook has authenticated the user
+    server.app.get('/auth/facebook/callback',
+        passport.authenticate('facebook', {
+            successRedirect : '/profile',
+            failureRedirect : '/'
+        }));
+
+    // route for logging out
+    server.app.get('/logout', function(req, res) {
+        req.logout();
+        res.redirect('/');
     });
 
     // =====================================
