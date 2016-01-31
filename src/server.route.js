@@ -16,13 +16,13 @@ module.exports = function(server) {
     }
 
     function getLoginRedirection(req, res, next) {
-        res.redirection = server.config.doc.redirection;
+        req.session.redirection = server.config.doc.redirection;
         var appCtrl = server.controllers.application;
         if (req.body.appId) {
             appCtrl.readApplicationById(req.body.appId, function(err, data) {
                 if ((!err) && (data)) {
                     server.console.log("Application found", data.name);
-                    res.redirection = data.redirection;
+                    req.session.redirection = data.redirection;
                 }
                 return next();
             });
@@ -57,7 +57,8 @@ module.exports = function(server) {
     server.app.get('/login', function(req, res) {
         // render the page and pass in any flash data if it exists
         res.render('login.ejs', {
-            message: req.flash('loginMessage'),
+            errorMessage: req.flash('loginMessage'),
+            successMessage: req.flash('successMessage'),
             appId: req.query.appId ? req.query.appId : "doc"
         });
     });
@@ -71,7 +72,7 @@ module.exports = function(server) {
             failureFlash : true // allow flash messages
         }),
         function(req, res) {
-            var redirect = url.parse(res.redirection);
+            var redirect = url.parse(req.session.redirection);
             redirect.query = redirect.query ? redirect.query : {};
             redirect.query.accessToken = req.user.generateAccessToken();
             server.console.log("redirecting to", url.format(redirect));
@@ -101,7 +102,6 @@ module.exports = function(server) {
 
     // End of signup
     server.app.get('/signup-done', function(req, res) {
-
         // render the page and pass in any flash data if it exists
         res.render('signup-done.ejs', {});
     });
@@ -125,7 +125,7 @@ module.exports = function(server) {
 
     // Change password
     server.app.post('/verify', passport.authenticate('change-password', {
-        successRedirect : '/verify-done',
+        successRedirect : '/login',
         failureRedirect : '/signup',
         failureFlash : true // allow flash messages
     }));
@@ -141,18 +141,28 @@ module.exports = function(server) {
     // FACEBOOK ROUTES =====================
     // =====================================
     // route for facebook authentication and login
-    server.app.get('/auth/facebook', passport.authenticate('facebook', {
-        scope : [
-            'email'
-        ]
-    }));
+    server.app.get('/auth/facebook',
+        getLoginRedirection,
+        passport.authenticate('facebook', {
+            scope : [
+                'email'
+            ]
+        })
+    );
 
     // handle the callback after facebook has authenticated the user
     server.app.get('/auth/facebook/callback',
         passport.authenticate('facebook', {
-            successRedirect : '/profile',
             failureRedirect : '/'
-        }));
+        }),
+        function(req, res) {
+            var redirect = url.parse(req.session.redirection);
+            redirect.query = redirect.query ? redirect.query : {};
+            redirect.query.accessToken = req.user.generateAccessToken();
+            server.console.log("redirecting to", url.format(redirect));
+            res.redirect(url.format(redirect));
+        }
+    );
 
     // route for logging out
     server.app.get('/logout', function(req, res) {

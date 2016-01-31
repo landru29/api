@@ -1,13 +1,13 @@
 // config/passport.js
 
 // expose this function to our app using module.exports
-module.exports = function(application) {
+module.exports = function(server) {
   'use strict';
 
   var FacebookStrategy = require('passport-facebook');
 
-  var passport = application.middlewares.passport;
-  var User = application.getModel('User');
+  var passport = server.middlewares.passport;
+  var User = server.getModel('User');
 
 
   // =========================================================================
@@ -16,9 +16,9 @@ module.exports = function(application) {
   passport.use(new FacebookStrategy({
 
       // pull in our app id and secret from our auth.js file
-      clientID        : application.config.connect.facebookAuth.clientID,
-      clientSecret    : application.config.connect.facebookAuth.clientSecret,
-      callbackURL     : application.config.connect.facebookAuth.callbackURL,
+      clientID        : server.config.connect.facebookAuth.clientID,
+      clientSecret    : server.config.connect.facebookAuth.clientSecret,
+      callbackURL     : server.config.connect.facebookAuth.callbackURL,
       profileFields   : ['id', 'email']
 
   },
@@ -29,8 +29,9 @@ module.exports = function(application) {
       // asynchronous
       process.nextTick(function() {
 
-          application.controllers.user.checkFacebookUser(profile, token).then(
+          server.controllers.user.checkFacebookUser(profile, token).then(
               function(user) {
+                  server.console.log('registering', user);
                   return done(null, user);
               },
               function(err) {

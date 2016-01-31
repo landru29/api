@@ -20,7 +20,7 @@ module.exports = function(application) {
     function(req, email, password, done) {
         application.controllers.user.checkUser(email, password, function(err, user) {
             if (err) {
-              return done(err);
+              return done(null, false, req.flash('loginMessage', err));
           }
             return done(null, user);
         });

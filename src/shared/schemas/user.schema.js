@@ -37,9 +37,7 @@ module.exports = function(server) {
         },
         facebook: {
             id: String,
-            token: String,
-            email: String,
-            name: String
+            token: String
         },
         twitter: {
             id: String,
@@ -88,6 +86,7 @@ module.exports = function(server) {
 
     UserSchema.pre('save', function(next) {
         if (this.isModified('password')) {
+            server.console.info('Encoding password');
             this.password = bcrypt.hashSync(this.password, bcrypt.genSaltSync(8), null);
         }
         if ((!this.verified) && (!this.emailToken)) {

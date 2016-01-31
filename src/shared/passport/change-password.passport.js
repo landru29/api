@@ -26,7 +26,7 @@ module.exports = function(application) {
                     application.console.warn("error on password change", err);
                   return done(null, false, req.flash('signupMessage', 'Cannot change password on ' + email + ': ' + err));
               } else {
-                  return done(null, user);
+                  return done(null, user, req.flash('successMessage', 'Password updated'));
               }
             });
         });

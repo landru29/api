@@ -200,6 +200,7 @@ module.exports = function(server) {
                     return callback('User not found');
                 }
             }, function(err) {
+                server.console.log('Error while searching by email');
                 reject(err);
                 return callback(err);
             });
@@ -276,7 +277,6 @@ module.exports = function(server) {
                             server.console.warn("no");
                             reject_("Passwords are not equals");
                         }
-                        server.console.log("yes");
                         resolve_();
                     });
                 },
@@ -285,7 +285,6 @@ module.exports = function(server) {
                 },
                 function(user) {
                     return q.promise(function(resolve_, reject_) {
-                        server.console.log("Token ok ?");
                         if (user.emailToken !== token) {
                             return reject_('Bad token');
                         }
@@ -308,58 +307,6 @@ module.exports = function(server) {
         });
     }
 
-    /**
-    * Check for facebook user and register him
-    * @param   {Object} facbookProfile Facebook profile
-    * @returns {Object} Promise
-    */
-    function checkFacebookUser(facebookProfile, facebookToken) {
-        var callback = server.helpers.getCallback(arguments);
-        return q.promise(function(resolve, reject){
-            User.findOne({ 'facebook.id' : facebookProfile.id }, function(err, user) {
-
-                // if there is an error, stop everything and return that
-                // ie an error connecting to the database
-                if (err) {
-                    reject(err);
-                    return callback(err);
-                }
-
-                // if the user is found, then log them in
-                if (user) {
-                    resolve(user);
-                    return callback(null, user); // user found, return that user
-                } else {
-                    // if there is no user found with that facebook id, create them
-                    var newUser            = new User();
-
-                    // set all of the facebook information in our user model
-                    newUser.facebook.id    = facebookProfile.id; // set the users facebook id
-                    newUser.facebook.token = facebookToken; // we will save the token that facebook provides to the user
-                    newUser.facebook.name  = facebookProfile.name.givenName + ' ' + profile.name.familyName; // look at the passport user profile to see how names are returned
-                    newUser.facebook.email = facebookProfile.emails[0].value; // facebook can return multiple emails so we'll take the first
-
-                    newUser.password = require('password-generator')(20, false);
-                    newUser.email = require('password-generator')(20, false) + '@noopy.fr'
-
-                    // save our user to the database
-                    newUser.save(function(err) {
-                        if (err) {
-                            reject(err);
-                            return callback(err);
-                        }
-
-                        // if successful, return the new user
-                        resolve(newUser);
-                        return callback(null, newUser);
-                    });
-                }
-
-            });
-        });
-    }
-
-
     return {
         readUsers: readUsers,
         createUser: createUser,
@@ -370,6 +317,6 @@ module.exports = function(server) {
         findUserByEmail: findUserByEmail,
         signup: signup,
         changePassword: changePassword,
-        checkFacebookUser: checkFacebookUser
+        checkFacebookUser: require('./user.facebook.include.js')(server)
     };
 };

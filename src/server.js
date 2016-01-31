@@ -43,7 +43,7 @@ module.exports = function(options) {
       secret: application.config.application.session.secret
     })); // session secret
     expressApp.use(application.middlewares.passport.initialize());
-    expressApp.use(application.middlewares.passport.session()); // persistent login sessions
+    //expressApp.use(application.middlewares.passport.session()); // persistent login sessions
     expressApp.use(flash()); // use connect-flash for flash messages stored in session
 
     /**
