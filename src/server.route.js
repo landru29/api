@@ -34,6 +34,9 @@ module.exports = function(server) {
     var passport = server.middlewares.passport;
 
 
+    // =====================================
+    // API MAIN ENTRY ======================
+    // =====================================
     /**
      * @followRoute ./api/api.route.js
      * @name        api
@@ -42,12 +45,18 @@ module.exports = function(server) {
         require('./api/api.route.js')(server)
     );
 
-    // Default page
+    // =====================================
+    // INDEX PAGE ==========================
+    // =====================================
     server.app.get('/', function(req, res) {
-        res.render('index.ejs'); // load the index.ejs file
+        res.render('index.ejs', {
+            appId: req.query.appId ? req.query.appId : "doc"
+        });
     });
 
-    //Documentation
+    // =====================================
+    // INTERACTIVE DOC =====================
+    // =====================================
     server.app.use('/doc', server.middlewares.fileServer(server.rootFolder + '/doc'));
 
     // =====================================
@@ -57,8 +66,8 @@ module.exports = function(server) {
     server.app.get('/login', function(req, res) {
         // render the page and pass in any flash data if it exists
         res.render('login.ejs', {
-            errorMessage: req.flash('loginMessage'),
-            successMessage: req.flash('successMessage'),
+            errorMessage: req.flash('loginErrorMessage'),
+            successMessage: req.flash('loginSuccessMessage'),
             appId: req.query.appId ? req.query.appId : "doc"
         });
     });
@@ -68,7 +77,7 @@ module.exports = function(server) {
         '/login',
         getLoginRedirection,
         passport.authenticate('local-login', {
-            failureRedirect : '/login', // redirect back to the signup page if there is an error
+            failureRedirect : '/login',
             failureFlash : true // allow flash messages
         }),
         function(req, res) {
@@ -88,7 +97,7 @@ module.exports = function(server) {
 
         // render the page and pass in any flash data if it exists
         res.render('signup.ejs', {
-            message: req.flash('signupMessage'),
+            message: req.flash('signupErrorMessage'),
             appId: req.query.appId ? req.query.appId : "doc"
         });
     });
@@ -96,14 +105,16 @@ module.exports = function(server) {
     // process the signup form
     server.app.post('/signup', passport.authenticate('local-signup', {
         successRedirect : '/signup-done',
-        failureRedirect : '/signup', // redirect back to the signup page if there is an error
+        failureRedirect : '/signup',
         failureFlash : true // allow flash messages
     }));
 
     // End of signup
     server.app.get('/signup-done', function(req, res) {
         // render the page and pass in any flash data if it exists
-        res.render('signup-done.ejs', {});
+        res.render('signup-done.ejs', {
+            appId: req.query.appId ? req.query.appId : "doc"
+        });
     });
 
 
@@ -116,7 +127,7 @@ module.exports = function(server) {
 
         // render the page and pass in any flash data if it exists
         res.render('verify.ejs', {
-            message: req.flash('signupMessage'),
+            message: req.flash('verifyErrorMessage'),
             appId: req.query.appId ? req.query.appId : "doc",
             email: req.query.email,
             token: req.query.token
@@ -126,15 +137,9 @@ module.exports = function(server) {
     // Change password
     server.app.post('/verify', passport.authenticate('change-password', {
         successRedirect : '/login',
-        failureRedirect : '/signup',
+        failureRedirect : '/verify',
         failureFlash : true // allow flash messages
     }));
-
-    // End of signup
-    server.app.get('/verify-done', function(req, res) {
-        // render the page and pass in any flash data if it exists
-        res.render('verify-done.ejs', {});
-    });
 
 
     // =====================================
@@ -164,12 +169,6 @@ module.exports = function(server) {
         }
     );
 
-    // route for logging out
-    server.app.get('/logout', function(req, res) {
-        req.logout();
-        res.redirect('/');
-    });
-
     // =====================================
     // PROFILE SECTION =====================
     // =====================================
@@ -177,7 +176,8 @@ module.exports = function(server) {
     // we will use route middleware to verify this (the isLoggedIn function)
     server.app.get('/profile', isLoggedIn, function(req, res) {
         res.render('profile.ejs', {
-            user : req.user // get the user out of session and pass to template
+            user : req.user,
+            appId: req.query.appId ? req.query.appId : "doc"
         });
     });
 

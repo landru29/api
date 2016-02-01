@@ -65,7 +65,6 @@
       "karma-phantomjs-launcher":"0.1.4",
       "matchdep": "0.3.0",
       "mocha": "2.3.0",
-      "grunt-auto-install": "0.3.0",
-      "chalk": "1.1.1"
+      "grunt-auto-install": "0.3.0"
     }
 }

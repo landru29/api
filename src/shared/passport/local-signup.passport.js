@@ -23,7 +23,7 @@ module.exports = function(application) {
           application.controllers.user.signup(email, appId, function(err, newUser) {
               if (err) {
                   console.log("error on creation", err);
-                return done(null, false, req.flash('signupMessage', 'Cannot signup with email ' + email));
+                return done(null, false, req.flash('signupErrorMessage', 'Cannot signup with email ' + email));
               }
 
               var link = 'http://' + req.headers.host + '/verify?' +

@@ -24,9 +24,9 @@ module.exports = function(application) {
             application.controllers.user.changePassword(email, token, req.body.password1, req.body.password, function(err, user) {
                 if (err) {
                     application.console.warn("error on password change", err);
-                  return done(null, false, req.flash('signupMessage', 'Cannot change password on ' + email + ': ' + err));
+                  return done(null, false, req.flash('verifyErrorMessage', 'Cannot change password on ' + email + ': ' + err));
               } else {
-                  return done(null, user, req.flash('successMessage', 'Password updated'));
+                  return done(null, user, req.flash('loginSuccessMessage', 'Password updated'));
               }
             });
         });
