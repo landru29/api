@@ -99,35 +99,6 @@ App.prototype.loadAll = function (mongooseErr, ready) {
 
     var self = this;
 
-    // LOAD API META
-    // =============================================================================
-
-    var loadRoute = function (node, baseRoute, collection) {
-        if ('string' !== typeof node) {
-            for (var subPath in node) {
-                if (node.hasOwnProperty(subPath)) {
-                    if (!(/^@/).test(subPath)) {
-                        loadRoute(node[subPath], path.join(baseRoute, subPath), collection);
-                    } else {
-                        var method = subPath.replace(/^@/, '').toLowerCase();
-                        self.console.log('   *', 'META', baseRoute, method.toUpperCase());
-                        if (!collection[baseRoute]) {
-                            collection[baseRoute] = {};
-                        }
-                        collection[baseRoute][method] = node[subPath];
-                    }
-                }
-            }
-        }
-    };
-
-    // LOAD METADATA
-    // =============================================================================
-    self.console.info('META:', 'Getting meta from source code');
-    this.meta = {
-        routes: require('./meta-loader')(this)
-    };
-
     // LOAD HELPERS
     // =============================================================================
     this.helpers.loader = loader;
@@ -136,6 +107,13 @@ App.prototype.loadAll = function (mongooseErr, ready) {
         self.console.info('HELPERS:', 'Loading', name);
         self.helpers[name] = require(file.fullPathname)(self);
     });
+
+    // LOAD METADATA
+    // =============================================================================
+    self.console.info('META:', 'Getting meta from source code');
+    this.meta = {
+        routes: this.helpers.metaLoader()
+    };
 
     // LOAD CONNECTORS
     // =============================================================================

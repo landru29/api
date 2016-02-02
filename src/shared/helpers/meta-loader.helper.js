@@ -187,10 +187,14 @@ module.exports = function (server) {
         }
     };
 
-    if (server.metaScanFile) {
-        processFile('', endpoints, server.metaScanFile, true);
-    } else {
-        server.console.warn('No file to scan for metadata');
-    }
-    return endpoints;
+    return function() {
+        if (server.metaScanFile) {
+            processFile('', endpoints, server.metaScanFile, true);
+        } else {
+            server.console.warn('No file to scan for metadata');
+        }
+        return endpoints;
+    };
+
+
 };
