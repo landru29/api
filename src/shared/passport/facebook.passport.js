@@ -1,13 +1,9 @@
-// config/passport.js
-
-// expose this function to our app using module.exports
 module.exports = function(server) {
   'use strict';
 
   var FacebookStrategy = require('passport-facebook');
 
   var passport = server.middlewares.passport;
-  var User = server.getModel('User');
 
 
   // =========================================================================

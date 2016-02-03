@@ -17,9 +17,22 @@
 
         <p>Login or Register with:</p>
 
-        <a href="/login?appId=<%= encodeURIComponent(appId) %>" class="btn btn-default"><span class="fa fa-user"></span> Local Login</a>
-        <a href="/signup?appId=<%= encodeURIComponent(appId) %>" class="btn btn-default"><span class="fa fa-user"></span> Local Signup</a>
-        <a href="/auth/facebook?appId=<%= encodeURIComponent(appId) %>" class="btn btn-primary"><span class="fa fa-facebook"></span> Facebook</a>
+        <a href="/login?appId=<%= encodeURIComponent(appId) %>" class="btn btn-default">
+            <span class="fa fa-user"></span>
+            Local Login
+        </a>
+        <a href="/signup?appId=<%= encodeURIComponent(appId) %>" class="btn btn-default">
+            <span class="fa fa-user"></span>
+            Local Signup
+        </a>
+        <a href="/auth/facebook?appId=<%= encodeURIComponent(appId) %>" class="btn btn-primary">
+            <span class="fa fa-facebook"></span>
+            Facebook
+        </a>
+         <a href="/auth/google?appId=<%= encodeURIComponent(appId) %>" class="btn btn-danger">
+             <span class="fa fa-google-plus"></span>
+             Google
+         </a>
     </div>
 
 </div>

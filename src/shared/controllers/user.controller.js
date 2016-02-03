@@ -317,6 +317,7 @@ module.exports = function(server) {
         findUserByEmail: findUserByEmail,
         signup: signup,
         changePassword: changePassword,
-        checkFacebookUser: require('./user.facebook.include.js')(server)
+        checkFacebookUser: require('./user.facebook.include.js')(server),
+        checkGoogleUser: require('./user.google.include.js')(server)
     };
 };

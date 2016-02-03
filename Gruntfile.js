@@ -301,6 +301,12 @@ module.exports = function (grunt) {
                         src: ['<%= project.appDoc%>/styles/img/**'],
                         dest: '<%= project.distDoc%>/styles/img'
                     },
+                    { // Images
+                        expand: true,
+                        flatten: true,
+                        src: ['assets/**'],
+                        dest: '<%= project.dist%>/assets'
+                    },
                     { // glyphicon from bootstrap
                         expand: true,
                         flatten: true,
