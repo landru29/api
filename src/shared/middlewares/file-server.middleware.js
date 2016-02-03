@@ -20,9 +20,13 @@ module.exports = function(server) {
                             root: fileDescriptor.publicFolder
                         });
                     } else {
-                        res.sendfile('index.html', {
-                            root: fileDescriptor.publicFolder
-                        });
+                        if ((fs.existsSync(fileDescriptor.publicFolder + '/index.html'))) {
+                            res.sendfile('index.html', {
+                                root: fileDescriptor.publicFolder
+                            });
+                        } else {
+                            res.status(404).send();
+                        }
                     }
                     break;
                 default:

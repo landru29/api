@@ -22,6 +22,10 @@ module.exports = function(server) {
     // =====================================
     server.app.use('/doc', server.middlewares.fileServer(server.rootFolder + '/doc'));
 
+    // =====================================
+    // ASSETS =====================
+    // =====================================
+    server.app.use('/assets', server.middlewares.fileServer(server.rootFolder + '/assets'));
 
     // =====================================
     // LOCAL PAGES =========================

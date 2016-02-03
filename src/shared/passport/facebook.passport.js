@@ -1,6 +1,3 @@
-// config/passport.js
-
-// expose this function to our app using module.exports
 module.exports = function(server) {
   'use strict';
 
