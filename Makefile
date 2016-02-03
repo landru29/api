@@ -8,7 +8,7 @@ BOWER=bower
 GETCONF=$(NODE) get-conf
 DEL=rm -rf
 ARCHIVE=dist.tar.gz
-BASE=`$(GETCONF) application.domain.protocol`://`$(GETCONF) application.domain.host`\/doc\/
+BASE=$(shell echo "`$(GETCONF) application.domain.protocol`:\/\/`$(GETCONF) application.domain.host`\/doc\/")
 DOMAIN=`$(GETCONF) application.domain.host`
 HTML=dist/doc/index.html
 HTMLTMP=dist/doc/index.html.new
@@ -39,7 +39,7 @@ clean:
 grunt: install
 	$(GRUNT)
 
-configure: config.json
+configure: config.json info
 	sed 's/<base href="[a-zA-Z0-9:\/]*">/<base href="$(BASE)">/' <$(HTML) >$(HTMLTMP)
 	$(DEL) $(HTML)
 	$(RENAME) $(HTMLTMP) $(HTML)
@@ -66,3 +66,7 @@ sail-redeploy: config.json sail_send
 
 config.json:
 	$(error You must create file config.json based on config.sample.json)
+
+info:
+	@echo "Domain $(DOMAIN)"
+	@echo "Base $(BASE)"
