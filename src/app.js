@@ -20,11 +20,13 @@ var App = function (server) {
 
     this.apiHost = process.env.API_HOST;
 
-    this.config = require(
-        (process.env.NODE_ENV === 'production') || (this.options.production) ?
-        '../config.json' :
-        '../config.dev.json'
-    );
+    var configFile = (process.env.NODE_ENV === 'production') || (this.options.production) ?
+    '../config.json' :
+    '../config.dev.json';
+
+    this.console.info('Loading config file', configFile);
+    this.config = require(configFile);
+
     this.helpers = {};
     this.mongoose = {
         plugins: {},

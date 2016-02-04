@@ -7,7 +7,7 @@ angular.module('Documentation').service('ConfLoader', function ($resource, $q, a
             }
         };
         return $q(function(resolve, reject) {
-            $resource(appConfiguration.apiUrl).get().$promise.then(
+            $resource('noopy-api/').get().$promise.then(
                 function (data) {
                     var result = {};
                     Object.keys(data.routes).forEach(function(route){

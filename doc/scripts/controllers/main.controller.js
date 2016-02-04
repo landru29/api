@@ -54,7 +54,7 @@ angular.module('Documentation').controller('MainCtrl', function($scope, ConfLoad
             rest.push(encodeURIComponent(key) + '=' + encodeURIComponent(thisParams[key]));
         }
         uri += rest.length ? '?' + rest.join('&') : '';
-        return appConfiguration.apiUrl + '/' + uri.replace(/^\/?(api\/)?/, '');
+        return  uri.replace(/^\/?(api\/)?/, 'noopy-api/');
     };
 
     this.request = function(route, method, metadata) {

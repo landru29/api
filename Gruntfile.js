@@ -243,16 +243,14 @@ module.exports = function (grunt) {
             dev: {
                 constants: {
                     appConfiguration: {
-                        apiUrl: 'http://localhost:8080/api',
-                        loginUrl: 'http://localhost:8080/login'
+                        apiUrl: 'http://localhost:8080',
                     }
                 }
             },
             dist: {
                 constants: {
                     appConfiguration: {
-                        apiUrl: '/api',
-                        loginUrl: '/login'
+                        apiUrl: '/',
                     }
                 }
             },

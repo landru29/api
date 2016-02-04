@@ -8,10 +8,19 @@ angular.module('Documentation', [
     'doc.config',
     'ngStorage',
     'api-plugin'
-]);
+])
 
-angular.module('Documentation').config(function($urlRouterProvider, $locationProvider, $httpProvider) {
+.config(function($urlRouterProvider, $locationProvider, $httpProvider) {
         'use strict';
         $urlRouterProvider.otherwise('/');
         $locationProvider.html5Mode(true);
-    });
+    }
+)
+
+.config(function(appConfiguration, NoopyProvider) {
+        'use strict';
+        NoopyProvider.setBaseUrl(appConfiguration.apiUrl);
+    }
+)
+
+;

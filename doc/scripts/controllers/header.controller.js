@@ -1,10 +1,10 @@
-angular.module('Documentation').controller('HeaderCtrl', function ($scope, $http, $modal, Flash, Login, appConfiguration) {
+angular.module('Documentation').controller('HeaderCtrl', function ($scope, $http, $modal, Flash, Login, Noopy) {
     'use strict';
     var self = this;
 
     self.isLoggedIn = Login.isLoggedIn();
 
-    this.loginUrl = appConfiguration.loginUrl;
+    this.loginUrl = Noopy.getLoginUrl();
 
     this.openLoginDialog = function () {
         $modal.open({
