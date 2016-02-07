@@ -21,7 +21,7 @@
       ].concat(
         fixtures.map(function(recipeData) {
           return function() {
-            return testFrame().controllers.beerRecipe.createRecipe(user._id, recipeData);
+            return testFrame().controllers.beerRecipe.createRecipe(user.id, recipeData);
           };
         })
       );
@@ -34,7 +34,7 @@
 
     describe('#readRecipes', function() {
       it('Should read a recipe', function(done) {
-        testFrame().controllers.beerRecipe.readRecipes(user._id).then(
+        testFrame().controllers.beerRecipe.readRecipes(user.id).then(
           function(recipeData) {
             assert.isArray(recipeData);
             recipeData.forEach(function(elt) {
@@ -55,13 +55,13 @@
       it('Should delete a recipe', function(done) {
         waterfall([
           function() {
-            return testFrame().controllers.beerRecipe.readRecipes(user._id)
+            return testFrame().controllers.beerRecipe.readRecipes(user.id)
           },
           function(recipeData) {
-            return testFrame().controllers.beerRecipe.deleteRecipe(user._id, recipeData[0]._id);
+            return testFrame().controllers.beerRecipe.deleteRecipe(user.id, recipeData[0].id);
           },
           function() {
-            return testFrame().controllers.beerRecipe.readRecipes(user._id);
+            return testFrame().controllers.beerRecipe.readRecipes(user.id);
           }
         ]).then(function(recipes) {
           assert.equal(recipes.length, fixtures.length - 1);

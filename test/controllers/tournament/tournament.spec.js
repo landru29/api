@@ -21,7 +21,7 @@
       ].concat(
         fixtures.map(function(tournamentData) {
           return function() {
-            return testFrame().controllers.tournament.createTournament(user._id, tournamentData);
+            return testFrame().controllers.tournament.createTournament(user.id, tournamentData);
           };
         })
       );
@@ -51,13 +51,13 @@
       it('Should delete a tournament', function(done) {
         waterfall([
           function() {
-            return testFrame().controllers.tournament.readTournaments(user._id)
+            return testFrame().controllers.tournament.readTournaments(user.id)
           },
           function(tournamentData) {
-            return testFrame().controllers.tournament.deleteTournament(user._id, tournamentData[0]._id);
+            return testFrame().controllers.tournament.deleteTournament(user.id, tournamentData[0].id);
           },
           function() {
-            return testFrame().controllers.tournament.readTournaments(user._id);
+            return testFrame().controllers.tournament.readTournaments(user.id);
           }
         ]).then(function(tournaments) {
           assert.equal(tournaments.length, fixtures.length - 1);

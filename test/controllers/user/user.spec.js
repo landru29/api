@@ -88,6 +88,26 @@
             });
         });
 
+        describe('#readUserById', function () {
+            it('Should read a user', function (done) {
+                var firstUser;
+              waterfall([
+                function(){
+                  return testFrame().controllers.user.readUsers();
+                },
+                function(users) {
+                    firstUser = _.first(users);
+                  return testFrame().controllers.user.readUserById(firstUser.id);
+                }
+              ]).then(function (user) {;
+                  assert.equal(user.id, firstUser.id);
+                  done();
+              }, function (err) {
+                  done(err);
+              });
+            });
+        });
+
         describe('#deleteUser', function () {
             it('Should delete a user', function (done) {
               waterfall([
@@ -162,5 +182,26 @@
                 );
             });
         });
+
+        describe('#signup', function () {
+            it('Should signup a user', function (done) {
+              waterfall([
+                function(){
+                  return testFrame().controllers.user.signup('azertyuiop@tre.fr');
+                },
+                function(createUser) {
+                  assert.equal(createUser.verified, false);
+                  return testFrame().controllers.user.changePassword(createUser.email, createUser.emailToken, 'toto', 'toto');
+                }
+              ]).then(function (user) {
+                  assert.equal(user.verified, true);
+                  done();
+              }, function (err) {
+                  done(err);
+              });
+            });
+        });
+
+
     });
 })();

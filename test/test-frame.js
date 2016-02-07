@@ -58,6 +58,13 @@
                     mongooseConnectionChain: connectionChain
                 }
             });
+            globalData.middlewares = {
+                passport: {
+                    use: function() {},
+                    deserializeUser: function() {},
+                    serializeUser: function() {}
+                }
+            }
             globalData.bootstrap(function () {
                 clearDb(globalData, function() {
                     loadFixtures(done);

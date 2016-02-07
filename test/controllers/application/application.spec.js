@@ -86,6 +86,46 @@
       });
     });
 
+    describe('#readApplicationById', function() {
+      it('Should read an application', function(done) {
+          var firstApplication;
+        waterfall([
+          function() {
+            return testFrame().controllers.application.readApplications();
+          },
+          function(applis) {
+              firstApplication = _.first(applis);
+            return testFrame().controllers.application.readApplicationById(firstApplication.id);
+          }
+        ]).then(function(application) {
+          assert.equal(application.id, firstApplication.id);
+          done();
+        }, function(err) {
+          done(err);
+        });
+      });
+    });
+
+    describe('#readApplicationByName', function() {
+      it('Should read an application', function(done) {
+          var firstApplication;
+        waterfall([
+          function() {
+            return testFrame().controllers.application.readApplications();
+          },
+          function(applis) {
+              firstApplication = _.first(applis);
+            return testFrame().controllers.application.readApplicationByName(firstApplication.name);
+          }
+        ]).then(function(application) {
+          assert.equal(application.id, firstApplication.id);
+          done();
+        }, function(err) {
+          done(err);
+        });
+      });
+    });
+
     describe('#deleteApplication', function() {
       it('Should delete an application', function(done) {
         waterfall([
@@ -93,7 +133,7 @@
             return testFrame().controllers.application.readApplications();
           },
           function(applis) {
-            return testFrame().controllers.application.deleteApplication(_.first(applis)._id);
+            return testFrame().controllers.application.deleteApplication(_.first(applis).id);
           },
           function() {
             return testFrame().controllers.application.readApplications();
@@ -117,12 +157,12 @@
           },
           function(applisRead) {
             applis = applisRead;
-            return testFrame().controllers.application.updateApplication(_.first(applis)._id, {
+            return testFrame().controllers.application.updateApplication(_.first(applis).id, {
               name: newName
             });
           },
           function(updateStatus) {
-            return testFrame().controllers.application.readApplicationById(_.first(applis)._id);
+            return testFrame().controllers.application.readApplicationById(_.first(applis).id);
           }
         ]).then(function(updatedAppli) {
           assert.equal(updatedAppli.name, newName);

@@ -22,7 +22,6 @@ module.exports = function(server) {
                     User.findOne({ 'facebook.id' : facebookProfile.id })
                 ]).then(function(users) {
                     server.console.log('Performing checks');
-                    var user = null;
                     if ((users[0]) && (users[1])) {
                         server.console.log('Two entries found');
                         if (users[0].id === users[1].id) {

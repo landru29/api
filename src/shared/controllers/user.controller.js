@@ -308,6 +308,7 @@ module.exports = function(server) {
     }
 
     return {
+        getApplications: getApplications,
         readUsers: readUsers,
         createUser: createUser,
         deleteUser: deleteUser,

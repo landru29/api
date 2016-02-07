@@ -1,7 +1,6 @@
 module.exports = function(server) {
     'use strict';
 
-    var url = require('url');
     var _ = require('lodash');
 
 

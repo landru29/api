@@ -50,7 +50,7 @@ module.exports = function (server) {
      */
     function readApplicationByName(name /*, callback*/) {
         var callback = server.helpers.getCallback(arguments);
-        return Application.find({
+        return Application.findOne({
             name: name
         }, callback);
     }
