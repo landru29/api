@@ -1,14 +1,14 @@
-module.exports = function (/*server*/) {
+module.exports = function (server) {
     'use strict';
     var url = require('url');
 
     return function (req, res, next) {
-        console.log('Cors middleware in action');
+        server.console.log('Cors middleware in action');
         var referer = req.headers.referer || req.headers.origin;
         if (referer) {
             var refererUrl = url.parse(referer);
             var allowedOrigin = refererUrl.protocol + '//' + refererUrl.hostname + ':' + refererUrl.port;
-            console.log('allowingCrossDomain on ' + allowedOrigin);
+            server.console.log('allowingCrossDomain on ' + allowedOrigin);
             res.header('Access-Control-Allow-Origin', allowedOrigin);
             res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE');
             res.header('Access-Control-Allow-Headers',

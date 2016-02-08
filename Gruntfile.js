@@ -17,7 +17,7 @@ module.exports = function (grunt) {
             distDoc: './dist/doc',
             distApi: './dist',
             appDoc: './doc',
-            appApi: './src',
+            appApi: './lib',
             bower: './bower_components'
         },
 
@@ -58,7 +58,7 @@ module.exports = function (grunt) {
                 tasks: [
                     'less:dev',
                     'copy:dev',
-                    'jshint'
+                    'jshint:doc'
                 ],
                 options: {
                     livereload: true
@@ -360,9 +360,6 @@ module.exports = function (grunt) {
             doc: [
                 '<%= project.appDoc%>/scripts/**/*.js',
                 'Gruntfile.js'
-            ],
-            api: [
-                '<%= project.appApi%>/**/*.js'
             ]
         },
 
@@ -385,7 +382,6 @@ module.exports = function (grunt) {
     ]);
 
     grunt.registerTask('dist-api', [
-        'jshint:api',
         'copy:api',
         'file-creator:api',
         'auto_install:api'

@@ -4,6 +4,8 @@ DIST=dist
 GRUNT=grunt
 NPM=npm
 NODE=node
+BABEL=./node_modules/.bin/babel
+NODEMON=nodemon
 BOWER=bower
 GETCONF=$(NODE) get-conf
 DEL=rm -rf
@@ -30,11 +32,17 @@ install:
 	$(NPM) install
 	$(BOWER) install
 
+dev:
+	$(NODEMON) --exec npm run babel-node -- launcher.js
+
 clean:
 	$(DEL) bower_components
 	$(DEL) node_modules
 	$(DEL) build
 	$(DEL) dist
+
+babel:
+	$(BABEL) src -d lib
 
 grunt:
 	$(GRUNT)
@@ -47,7 +55,7 @@ configure: config.json info
 	$(DEL) $(HTML)
 	$(RENAME) $(HTMLTMP) $(HTML)
 
-build: config.json tests grunt configure
+build: config.json tests babel grunt configure
 	$(TAR) $(ARCHIVE) $(DIST)
 
 docker: config.json build

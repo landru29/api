@@ -38,8 +38,8 @@ module.exports = function (server, config) {
         // API request
         return q.Promise(function (resolve, reject) {
             var req = http.request(options, function (res) {
-                console.log('[MAILJET: STATUS]', res.statusCode);
-                console.log('[MAILJET: HEADERS]', JSON.stringify(res.headers));
+                server.console.log('[MAILJET: STATUS]', res.statusCode);
+                server.console.log('[MAILJET: HEADERS]', JSON.stringify(res.headers));
                 var str = '';
                 res.setEncoding('utf8');
 
@@ -53,14 +53,14 @@ module.exports = function (server, config) {
                 });
 
                 res.on('end', function () {
-                    console.log('[MAILJET: DATA]', str);
+                    server.console.log('[MAILJET: DATA]', str);
                     resolve(str);
                     callback(null, str);
                 });
 
             });
 
-            console.log('[MAILJET: BODY]', JSON.stringify(body));
+            server.console.log('[MAILJET: BODY]', JSON.stringify(body));
             req.write(encodedBody);
 
             req.end();

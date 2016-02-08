@@ -12,7 +12,7 @@ module.exports = function(server) {
         // render the page and pass in any flash data if it exists
         res.render('signup.ejs', {
             message: req.flash('signupErrorMessage'),
-            appId: req.query.appId ? req.query.appId : "doc"
+            appId: req.query.appId ? req.query.appId : 'doc'
         });
     });
 
@@ -27,7 +27,7 @@ module.exports = function(server) {
     server.app.get('/signup-done', function(req, res) {
         // render the page and pass in any flash data if it exists
         res.render('signup-done.ejs', {
-            appId: req.query.appId ? req.query.appId : "doc"
+            appId: req.query.appId ? req.query.appId : 'doc'
         });
     });
 

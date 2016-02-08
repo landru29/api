@@ -36,8 +36,8 @@ module.exports = function (server) {
                     }
                 );
             } else {
-                reject("Not an application id");
-                return callback("Not an application id");
+                reject('Not an application id');
+                return callback('Not an application id');
             }
         });
     }

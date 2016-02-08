@@ -14,7 +14,7 @@ module.exports = function(server) {
         // render the page and pass in any flash data if it exists
         res.render('verify.ejs', {
             message: req.flash('verifyErrorMessage'),
-            appId: req.query.appId ? req.query.appId : "doc",
+            appId: req.query.appId ? req.query.appId : 'doc',
             email: req.query.email,
             token: req.query.token
         });

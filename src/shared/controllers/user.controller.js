@@ -48,7 +48,7 @@ module.exports = function(server) {
      * @returns {Object} Promise
      */
     function createUser(userData /*, callback*/ ) {
-        server.console.log("Creating user");
+        server.console.log('Creating user');
         var callback = server.helpers.getCallback(arguments);
         var user = new User();
         user.verified = !!userData.verified;
@@ -104,7 +104,7 @@ module.exports = function(server) {
      * @returns {Object} Promise
      */
     function deleteUser(id /*, callback*/ ) {
-        server.console.log("Deleting user");
+        server.console.log('Deleting user');
         var callback = server.helpers.getCallback(arguments);
         return q.promise(function(resolve, reject){
             User.remove({
@@ -127,7 +127,7 @@ module.exports = function(server) {
      * @returns {Object} Promise
      */
     function updateUser(id, userData /*, callback*/ ) {
-        server.console.log("Updating user");
+        server.console.log('Updating user');
         var callback = server.helpers.getCallback(arguments);
         return waterfall([
             function() {
@@ -170,7 +170,7 @@ module.exports = function(server) {
      * @returns {Object} Promise
      */
     function checkUser(email, password /*, callback*/ ) {
-        server.console.log("Checking user");
+        server.console.log('Checking user');
         var callback = server.helpers.getCallback(arguments);
         return q.promise(function(resolve, reject) {
             findUserByEmail(email).then(function(user) {
@@ -194,7 +194,7 @@ module.exports = function(server) {
      * @returns {Object} Promise
      */
     function findUserByEmail(email /*, callback*/ ) {
-        server.console.log("Finding user by email", email);
+        server.console.log('Finding user by email', email);
         var callback = server.helpers.getCallback(arguments);
         return q.promise(function(resolve, reject){
             User.find({
@@ -223,13 +223,13 @@ module.exports = function(server) {
     * @returns {Object} Promise
     */
     function signup(email, appId /*, callback*/) {
-        server.console.log("Signing up a user");
+        server.console.log('Signing up a user');
         var callback = server.helpers.getCallback(arguments);
         return q.promise(function(resolve, reject) {
-            server.console.log("Looking for users");
+            server.console.log('Looking for users');
             findUserByEmail(email, function(err, user) {
                 if ((err) && (err !== 'User not found')) {
-                    console.log("Error !", "[" + err + "]");
+                    server.console.log('Error !', '[' + err + ']');
                     reject(err);
                     return callback(err || 'What happened ?');
                 }
@@ -254,11 +254,11 @@ module.exports = function(server) {
                 }
 
                 return waterfall(tasks).then(function(newUser) {
-                    server.console.log("Signup success !");
+                    server.console.log('Signup success !');
                     resolve(newUser);
                     return callback(null, newUser);
                 }, function(err) {
-                    server.console.error("Signup fail !");
+                    server.console.error('Signup fail !');
                     reject(err);
                     return callback(err);
                 });
@@ -275,16 +275,16 @@ module.exports = function(server) {
     * @returns {Object} Promise
     */
     function changePassword(email, token, password, password1) {
-        server.console.log("Change the password of a user");
+        server.console.log('Change the password of a user');
         var callback = server.helpers.getCallback(arguments);
         return q.promise(function(resolve, reject){
             waterfall([
                 function() {
-                    server.console.log("Passwords equals ?");
+                    server.console.log('Passwords equals ?');
                     return q.promise(function(resolve_, reject_) {
                         if (password !== password1) {
-                            server.console.warn("no");
-                            reject_("Passwords are not equals");
+                            server.console.warn('no');
+                            reject_('Passwords are not equals');
                         }
                         resolve_();
                     });
@@ -301,7 +301,7 @@ module.exports = function(server) {
                     });
                 },
                 function(user) {
-                    server.console.log("Update user");
+                    server.console.log('Update user');
                     user.verified = true;
                     user.password = password;
                     return user.save();

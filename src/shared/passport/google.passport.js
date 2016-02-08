@@ -12,7 +12,7 @@ module.exports = function(server) {
 
       clientID        : server.config.connect.googleAuth.clientID,
       clientSecret    : server.config.connect.googleAuth.clientSecret,
-      callbackURL     : server.config.connect.googleAuth.callbackURL,
+      callbackURL     : server.config.connect.googleAuth.callbackURL
 
   },
   function(token, refreshToken, profile, done) {

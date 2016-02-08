@@ -6,7 +6,7 @@ module.exports = function(server) {
     // =====================================
     server.app.get('/', function(req, res) {
         res.render('index.ejs', {
-            appId: req.query.appId ? req.query.appId : "doc"
+            appId: req.query.appId ? req.query.appId : 'doc'
         });
     });
 };

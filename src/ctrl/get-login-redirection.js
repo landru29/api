@@ -7,7 +7,7 @@ module.exports = function(server) {
         if (req.body.appId) {
             appCtrl.readApplicationById(req.body.appId, function(err, data) {
                 if ((!err) && (data)) {
-                    server.console.log("Application found", data.name);
+                    server.console.log('Application found', data.name);
                     req.session.redirection = data.redirection;
                 }
                 return next();

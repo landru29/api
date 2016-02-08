@@ -17,7 +17,7 @@ module.exports = function(server) {
         res.render('login.ejs', {
             errorMessage: req.flash('loginErrorMessage'),
             successMessage: req.flash('loginSuccessMessage'),
-            appId: req.query.appId ? req.query.appId : "doc"
+            appId: req.query.appId ? req.query.appId : 'doc'
         });
     });
 
@@ -33,7 +33,7 @@ module.exports = function(server) {
             var redirect = url.parse(req.session.redirection);
             redirect.query = redirect.query ? redirect.query : {};
             redirect.query.accessToken = req.user.generateAccessToken();
-            server.console.log("redirecting to", url.format(redirect));
+            server.console.log('redirecting to', url.format(redirect));
             res.redirect(url.format(redirect));
         }
     );

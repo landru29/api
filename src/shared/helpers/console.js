@@ -16,7 +16,9 @@ module.exports = function (server) {
             chalk.dim(d.toISOString() + '[' + process.pid + ']: >'),
             meta
         ];
+        /* eslint-disable no-console */
         return console.log.apply(null, printData.concat(data));
+        /* eslint-enable no-console */
     }
 
     MyConsole.prototype.log = function() {

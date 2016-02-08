@@ -4,7 +4,7 @@
     var waterfall = require('promise-waterfall');
     var config = require('./test-conf.json');
     var q = require('q');
-    var App = require('../src/app.js');
+    var App = require('../lib/app.js');
     var userFixtures = require('./fixtures/users.fixture.json');
 
     var globalData;

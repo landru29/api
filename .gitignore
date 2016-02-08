@@ -33,6 +33,8 @@ dist
 dist.tgz
 dist.tar.gz
 
+lib
+
 config.json
 config.dev.json
 

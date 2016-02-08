@@ -19,7 +19,7 @@ module.exports = function(application) {
       process.nextTick(function() {
           application.controllers.user.signup(email, appId, function(err, newUser) {
               if (err) {
-                  console.log("error on creation", err);
+                application.console.log('error on creation', err);
                 return done(null, false, req.flash('signupErrorMessage', 'Cannot signup with email ' + email));
               }
 

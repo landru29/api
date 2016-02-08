@@ -35,7 +35,7 @@ module.exports = function(server) {
             var redirect = url.parse(req.session.redirection);
             redirect.query = redirect.query ? redirect.query : {};
             redirect.query.accessToken = req.user.generateAccessToken();
-            server.console.log("redirecting to", url.format(redirect));
+            server.console.log('redirecting to', url.format(redirect));
             res.redirect(url.format(redirect));
         }
     );
