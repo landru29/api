@@ -38,7 +38,7 @@
           function(tournamentData) {
             assert.isArray(tournamentData);
             assert.equal(tournamentData.length, fixtures.length);
-            done()
+            done();
           },
           function(err) {
             done(err);
@@ -51,7 +51,7 @@
       it('Should delete a tournament', function(done) {
         waterfall([
           function() {
-            return testFrame().controllers.tournament.readTournaments(user.id)
+            return testFrame().controllers.tournament.readTournaments(user.id);
           },
           function(tournamentData) {
             return testFrame().controllers.tournament.deleteTournament(user.id, tournamentData[0].id);

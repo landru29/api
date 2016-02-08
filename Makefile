@@ -36,15 +36,18 @@ clean:
 	$(DEL) build
 	$(DEL) dist
 
-grunt: install
+grunt:
 	$(GRUNT)
+
+tests: install
+	$(NPM) test
 
 configure: config.json info
 	sed 's/<base href="[a-zA-Z0-9:\/]*">/<base href="$(BASE)">/' <$(HTML) >$(HTMLTMP)
 	$(DEL) $(HTML)
 	$(RENAME) $(HTMLTMP) $(HTML)
 
-build: config.json grunt configure
+build: config.json tests grunt configure
 	$(TAR) $(ARCHIVE) $(DIST)
 
 docker: config.json build

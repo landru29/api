@@ -4,7 +4,7 @@
   "description": "API REST",
   "scripts": {
         "start": "NODE_ENV=production node launcher.js",
-        "test": "jshint src &&  mocha"
+        "test": "jshint src test &&  mocha"
     },
   "dependencies" : {
     "express" : "~4.0.0",

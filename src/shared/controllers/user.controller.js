@@ -105,9 +105,18 @@ module.exports = function(server) {
      */
     function deleteUser(id /*, callback*/ ) {
         server.console.log("Deleting user");
-        return User.remove({
-            _id: id
-        }, server.helpers.getCallback(arguments));
+        var callback = server.helpers.getCallback(arguments);
+        return q.promise(function(resolve, reject){
+            User.remove({
+                _id: id
+            }).then(function(result) {
+                resolve(result.result);
+                return callback(null, result.result);
+            }, function(err) {
+                reject(err);
+                return callback(err);
+            });
+        });
     }
 
     /**

@@ -53,7 +53,7 @@
                         password: 'plutot'
                     });
                   },
-                  function() {
+                  function(user1) {
                       return testFrame().controllers.user.createUser({
                           name: 'minnie',
                           email: user1.email,
@@ -79,7 +79,7 @@
                     function (users) {
                         assert.isArray(users);
                         assert.equal(users.length, fixtures.length + 2); // 2 users are preloaded
-                        done()
+                        done();
                     },
                     function (err) {
                         done(err);
@@ -99,12 +99,28 @@
                     firstUser = _.first(users);
                   return testFrame().controllers.user.readUserById(firstUser.id);
                 }
-              ]).then(function (user) {;
+              ]).then(function (user) {
                   assert.equal(user.id, firstUser.id);
                   done();
               }, function (err) {
                   done(err);
               });
+            });
+
+            it('Should not read any user (not existing id)', function (done) {
+                testFrame().controllers.user.readUserById(123).then(function () {
+                    done('Should not resolve');
+                }, function () {
+                    done();
+                });
+            });
+
+            it('Should not read any user (bad id)', function (done) {
+                testFrame().controllers.user.readUserById('bob').then(function () {
+                    done('Should not resolve');
+                }, function () {
+                    done();
+                });
             });
         });
 
@@ -115,16 +131,33 @@
                   return testFrame().controllers.user.readUsers();
                 },
                 function(users) {
-                  return testFrame().controllers.user.deleteUser(_.first(users)._id);
+                  return testFrame().controllers.user.deleteUser(_.first(users).id);
                 },
-                function() {
+                function(result) {
+                  assert.equal(result.ok, 1);
                   return testFrame().controllers.user.readUsers();
                 }
-              ]).then(function (users) {;
+              ]).then(function (users) {
                   assert.equal(users.length, fixtures.length + 2 - 1); // 2 users are preloaded
                   done();
               }, function (err) {
                   done(err);
+              });
+            });
+
+            it('Should not delete any user (not existing id)', function (done) {
+              testFrame().controllers.user.deleteUser(123).then(function () {
+                  done('Should not resolve');
+              }, function () {
+                  done();
+              });
+            });
+
+            it('Should not delete any user (bad id)', function (done) {
+              testFrame().controllers.user.deleteUser('bob').then(function () {
+                  done('Should not resolve');
+              }, function () {
+                  done();
               });
             });
         });
@@ -139,18 +172,40 @@
                 },
                 function (usersRead) {
                   users = usersRead;
-                    return testFrame().controllers.user.updateUser(_.first(users)._id, {
+                    return testFrame().controllers.user.updateUser(_.first(users).id, {
                         name: newName
                     });
                 },
                 function () {
-                    return testFrame().controllers.user.readUserById(_.first(users)._id);
+                    return testFrame().controllers.user.readUserById(_.first(users).id);
                 }
               ]).then(function (updatedUser) {
                   assert.equal(updatedUser.name, newName);
                   done();
               }, function (err) {
                   done(err);
+              });
+            });
+
+            it('Should not update any user (not existing id)', function (done) {
+              var newName = 'rococo';
+              testFrame().controllers.user.updateUser("123", {
+                  name: newName
+              }).then(function () {
+                  done('Should not resolve');
+              }, function () {
+                  done();
+              });
+            });
+
+            it('Should not update any user (bad id)', function (done) {
+              var newName = 'rococo';
+              testFrame().controllers.user.updateUser("bob", {
+                  name: newName
+              }).then(function () {
+                  done('Should not resolve');
+              }, function () {
+                  done();
               });
             });
         });
@@ -167,6 +222,39 @@
                     }
                 );
             });
+
+            it('Should not check any user (not verified)', function (done) {
+                testFrame().controllers.user.checkUser(fixtures[1].email, fixtures[1].password).then(
+                    function () {
+                        done('Should not resolve');
+                    },
+                    function () {
+                        done();
+                    }
+                );
+            });
+
+            it('Should not check any user (bad password)', function (done) {
+                testFrame().controllers.user.checkUser(fixtures[0].email, 'bob' + fixtures[0].password).then(
+                    function () {
+                        done('Should not resolve');
+                    },
+                    function () {
+                        done();
+                    }
+                );
+            });
+
+            it('Should not check any user (bad login)', function (done) {
+                testFrame().controllers.user.checkUser('bob' + fixtures[0].email, fixtures[0].password).then(
+                    function () {
+                        done('Should not resolve');
+                    },
+                    function () {
+                        done();
+                    }
+                );
+            });
         });
 
         describe('#findUserByEmail', function () {
@@ -178,6 +266,28 @@
                     },
                     function (err) {
                         done(err);
+                    }
+                );
+            });
+
+            it('Should not find any user with inexisting email', function (done) {
+                testFrame().controllers.user.findUserByEmail('bob' + fixtures[0].email).then(
+                    function () {
+                        done('Should not resolve');
+                    },
+                    function () {
+                        done();
+                    }
+                );
+            });
+
+            it('Should not find any user with wrong email', function (done) {
+                testFrame().controllers.user.findUserByEmail('bob').then(
+                    function () {
+                        done('Should not resolve');
+                    },
+                    function () {
+                        done();
                     }
                 );
             });
@@ -200,6 +310,63 @@
                   done(err);
               });
             });
+
+            it('Should not signup the user (not an email)', function (done) {
+              testFrame().controllers.user.signup('azertyuiop').then(function () {
+                  done('Should not resolve');
+              }, function () {
+                  done();
+              });
+            });
+
+            it('Should not signup the user (bad token)', function (done) {
+              waterfall([
+                function(){
+                  return testFrame().controllers.user.signup('azertyuiop@tre.fr');
+                },
+                function(createUser) {
+                  assert.equal(createUser.verified, false);
+                  return testFrame().controllers.user.changePassword(createUser.email, 'bob' + createUser.emailToken, 'toto', 'toto');
+                }
+              ]).then(function () {
+                  done('Should not resolve');
+              }, function () {
+                  done();
+              });
+            });
+
+            it('Should not signup the user (wrong password)', function (done) {
+              waterfall([
+                function(){
+                  return testFrame().controllers.user.signup('azertyuiop@tre.fr');
+                },
+                function(createUser) {
+                  assert.equal(createUser.verified, false);
+                  return testFrame().controllers.user.changePassword(createUser.email, createUser.emailToken, 'toto', 'kiki');
+                }
+              ]).then(function () {
+                  done('Should not resolve');
+              }, function () {
+                  done();
+              });
+            });
+
+            it('Should not signup the user (wrong email)', function (done) {
+              waterfall([
+                function(){
+                  return testFrame().controllers.user.signup('azertyuiop@tre.fr');
+                },
+                function(createUser) {
+                  assert.equal(createUser.verified, false);
+                  return testFrame().controllers.user.changePassword('bob' + createUser.email, createUser.emailToken, 'toto', 'toto');
+                }
+              ]).then(function () {
+                  done('Should not resolve');
+              }, function () {
+                  done();
+              });
+            });
+
         });
 
 

@@ -57,7 +57,7 @@
               name: 'mickey',
             });
           }
-        ]).then(function(appli2) {
+        ]).then(function() {
             done('Should not create the second application');
           },
           function(err) {
@@ -77,7 +77,7 @@
           function(appli) {
             assert.isArray(appli);
             assert.equal(appli.length, fixtures.length);
-            done()
+            done();
           },
           function(err) {
             done(err);
@@ -161,7 +161,7 @@
               name: newName
             });
           },
-          function(updateStatus) {
+          function() {
             return testFrame().controllers.application.readApplicationById(_.first(applis).id);
           }
         ]).then(function(updatedAppli) {

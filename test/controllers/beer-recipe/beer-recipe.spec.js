@@ -42,7 +42,7 @@
               assert.isString(elt.author);
             });
             assert.equal(recipeData.length, fixtures.length);
-            done()
+            done();
           },
           function(err) {
             done(err);
@@ -55,7 +55,7 @@
       it('Should delete a recipe', function(done) {
         waterfall([
           function() {
-            return testFrame().controllers.beerRecipe.readRecipes(user.id)
+            return testFrame().controllers.beerRecipe.readRecipes(user.id);
           },
           function(recipeData) {
             return testFrame().controllers.beerRecipe.deleteRecipe(user.id, recipeData[0].id);

@@ -1,4 +1,4 @@
-(function () {
+(function() {
     'use strict';
     var mongoose = require('mongoose');
     var waterfall = require('promise-waterfall');
@@ -17,36 +17,36 @@
      * @param   {Object} mongooseDesc Mongoose descriptor {instance, plugins, schemas}
      * @param {Function} doneClear    Callback
      */
-    var clearDb = function (appli, doneClear) {
+    var clearDb = function(appli, doneClear) {
         var promises = [];
-        for (var i in appli.mongoose.instance.connection.collections) {
+        Object.keys(appli.mongoose.instance.connection.collections).forEach(function(i) {
             promises.push(appli.mongoose.instance.connection.collections[i].remove());
-        }
+        });
         q.all(promises).then(
-            function () {
+            function() {
                 appli.reloadModels();
                 doneClear();
             },
-            function (err) {
+            function(err) {
                 doneClear(err);
             }
         );
     };
 
     var loadFixtures = function(doneFixture) {
-        var tasks = userFixtures.map(function(elt){
-          return function() {
-            return globalData.controllers.user.createUser(elt);
-          }
+        var tasks = userFixtures.map(function(elt) {
+            return function() {
+                return globalData.controllers.user.createUser(elt);
+            };
         });
         waterfall(tasks).then(function() {
-          doneFixture();
+            doneFixture();
         }, function(err) {
-          doneFixture(err || 'beforeEach');
+            doneFixture(err || 'beforeEach');
         });
     };
 
-    beforeEach(function (done) {;
+    beforeEach(function(done) {
         if (!globalData) {
             var connectionChain = 'mongodb://' +
                 config.database.host + ':' +
@@ -64,15 +64,15 @@
                     deserializeUser: function() {},
                     serializeUser: function() {}
                 }
-            }
-            globalData.bootstrap(function () {
+            };
+            globalData.bootstrap(function() {
                 clearDb(globalData, function() {
                     loadFixtures(done);
                 });
             });
 
         } else {
-            globalData.connectDb(function () {
+            globalData.connectDb(function() {
                 clearDb(globalData, function() {
                     loadFixtures(done);
                 });
@@ -80,12 +80,12 @@
         }
     });
 
-    afterEach(function (done) {
+    afterEach(function(done) {
         mongoose.disconnect();
         return done();
     });
 
-    module.exports = function () {
+    module.exports = function() {
         return globalData;
     };
 
