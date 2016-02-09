@@ -29,6 +29,8 @@
         done();
       }, function(err) {
         done(err || 'beforeEach');
+      }).catch(function (error) {
+          done(error);
       });
     });
 
@@ -47,7 +49,9 @@
           function(err) {
             done(err);
           }
-        );
+        ).catch(function (error) {
+            done(error);
+        });
       });
     });
 
@@ -68,6 +72,8 @@
           done();
         }, function(err) {
           done(err);
+        }).catch(function (error) {
+            done(error);
         });
       });
     });

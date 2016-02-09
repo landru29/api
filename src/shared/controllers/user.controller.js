@@ -28,7 +28,16 @@ module.exports = function(server) {
      * @returns {Object} Promise
      */
     function readUsers( /*, callback*/ ) {
-        return User.find(server.helpers.getCallback(arguments));
+        var callback = server.helpers.getCallback(arguments);
+        return q.promise(function(resolve, reject) {
+            User.find().then(function(users){
+                resolve(users);
+                return callback(null, users);
+            }, function(err) {
+                reject(err);
+                return callback(err);
+            });
+        });
     }
 
     /**
@@ -38,7 +47,16 @@ module.exports = function(server) {
      * @returns {Object} Promise
      */
     function readUserById(id /*, callback*/ ) {
-        return User.findById(id, server.helpers.getCallback(arguments));
+        var callback = server.helpers.getCallback(arguments);
+        return q.promise(function(resolve, reject) {
+            User.findById(id).then(function(user){
+                resolve(user);
+                return callback(null, user);
+            }, function(err) {
+                reject(err);
+                return callback(err);
+            });
+        });
     }
 
     /**

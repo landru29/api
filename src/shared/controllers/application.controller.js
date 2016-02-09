@@ -11,7 +11,15 @@ module.exports = function (server) {
      */
     function readApplications(/*, callback*/) {
         var callback = server.helpers.getCallback(arguments);
-        return Application.find(callback);
+        return q.promise(function(resolve, reject) {
+            Application.find().then(function(applis) {
+                resolve(applis);
+                return callback(null, applis);
+            }, function(err) {
+                reject(err);
+                return callback(err);
+            });
+        });
     }
 
     /**

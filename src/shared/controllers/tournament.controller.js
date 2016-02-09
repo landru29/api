@@ -14,7 +14,15 @@ module.exports = function (server) {
     function readTournaments(userId /*, callback*/) {
         var filter = userId ? {userId: userId} : undefined;
         var callback = server.helpers.getCallback(arguments);
-        return Tournament.find(filter, callback);
+        return q.promise(function(resolve, reject) {
+            Tournament.find(filter).then(function(tournaments) {
+                resolve(tournaments);
+                return callback(null, tournaments);
+            }, function(err) {
+                reject(err);
+                return callback(err);
+            });
+        });
     }
 
     /**

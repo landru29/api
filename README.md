@@ -30,7 +30,7 @@ bower install
 Launch server
 
 ````
-    nodemon launcher.js
+    make dev
 ````
 
 Launch UX Documentation
