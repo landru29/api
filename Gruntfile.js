@@ -18,7 +18,8 @@ module.exports = function (grunt) {
             distApi: './dist',
             appDoc: './doc',
             appApi: './lib',
-            bower: './bower_components'
+            bower: './bower_components',
+            viewsApi: './views'
         },
 
         /*************************************************/
@@ -287,6 +288,12 @@ module.exports = function (grunt) {
                         expand: true,
                         flatten: true,
                         src: ['config.json'],
+                        dest: '<%= project.distApi%>/'
+                    },
+                    {
+                        expand: true,
+                        flatten: false,
+                        src: ['<%= project.viewsApi%>/**/*.ejs'],
                         dest: '<%= project.distApi%>/'
                     }
                 ]

@@ -36,7 +36,7 @@ module.exports = function(options) {
     expressApp.use(bodyParser()); // get information from html forms
 
     expressApp.set('view engine', 'ejs'); // set up ejs for templating
-    expressApp.set('views', __dirname + '/views');
+    expressApp.set('views', __dirname + '/../views');
 
     // required for passport
     expressApp.use(session({

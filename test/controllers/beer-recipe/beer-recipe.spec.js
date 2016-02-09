@@ -34,7 +34,7 @@
 
     describe('#readRecipes', function() {
       it('Should read a recipe', function(done) {
-        testFrame().controllers.beerRecipe.readRecipes(user.id).then(
+        return testFrame().controllers.beerRecipe.readRecipes(user.id).then(
           function(recipeData) {
             assert.isArray(recipeData);
             recipeData.forEach(function(elt) {
@@ -53,7 +53,7 @@
 
     describe('#deleteRecipe', function() {
       it('Should delete a recipe', function(done) {
-        waterfall([
+        return waterfall([
           function() {
             return testFrame().controllers.beerRecipe.readRecipes(user.id);
           },

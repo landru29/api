@@ -6,12 +6,13 @@ module.exports = function(server) {
 
     /**
      * Read All recipe
-     * @name /
+     * @name /list
      * @method GET
      * @role user
+     * @role admin
      */
     router.get('/list', function (req, res) {
-        controller.readRecipes(req.getUserId(), function(err, data) {
+        controller.readRecipes(req.user.id, function(err, data) {
             server.helpers.response(req, res, err, data);
         });
     });

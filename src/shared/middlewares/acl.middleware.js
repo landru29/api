@@ -38,7 +38,7 @@ module.exports = function (server) {
                 server.console.log('  *', 'Allow', req.user.role, 'in', acl.role);
                 return next();
             } else {
-                server.console.log('  *', 'Forbiden', acl.role);
+                server.console.log('  *', 'Forbiden', acl.role, "/", (req.user ? req.user.role: "(none)"));
                 return res.status(403).send({message: 'Forbiden'});
             }
             req.acl = acl;

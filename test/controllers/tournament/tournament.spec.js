@@ -34,7 +34,7 @@
 
     describe('#readTournaments', function() {
       it('Should read a tournament', function(done) {
-        testFrame().controllers.tournament.readTournaments().then(
+        return testFrame().controllers.tournament.readTournaments().then(
           function(tournamentData) {
             assert.isArray(tournamentData);
             assert.equal(tournamentData.length, fixtures.length);
@@ -49,7 +49,7 @@
 
     describe('#deleteTournament', function() {
       it('Should delete a tournament', function(done) {
-        waterfall([
+        return waterfall([
           function() {
             return testFrame().controllers.tournament.readTournaments(user.id);
           },

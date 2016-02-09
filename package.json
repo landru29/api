@@ -5,6 +5,7 @@
   "scripts": {
         "start": "NODE_ENV=production node launcher.js",
         "test": "eslint src && babel src -d lib && jshint test &&  mocha",
+        "build": "babel src -d lib",
         "babel-node": "babel-node"
     },
   "dependencies" : {

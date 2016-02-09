@@ -89,7 +89,7 @@ module.exports = function (server) {
                     case 'uri':
                         result.where = 'url';
                         break;
-                    case 'herder':
+                    case 'header':
                     case 'headers':
                         result.where = 'header';
                         break;

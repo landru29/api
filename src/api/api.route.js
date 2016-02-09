@@ -4,10 +4,6 @@ module.exports = function (server) {
     var router = express.Router();
 
     router.use(server.middlewares.cors);
-    router.use(
-        server.middlewares.passport.authenticate('token-login', { session: false })
-    );
-    router.use(server.middlewares.acl);
 
     /**
      * @method GET
@@ -20,28 +16,16 @@ module.exports = function (server) {
     });
 
     /**
-     * @followRoute ./user/api-user.route.js
-     * @name        user
+     * @followRoute ./admin/api-admin.route.js
+     * @name        admin
      */
-    router.use('/user', require('./user/api-user.route.js')(server));
+    router.use('/admin', require('./admin/api-admin.route.js')(server));
 
     /**
-     * @followRoute ./application/api-application.route.js
-     * @name        application
+     * @followRoute ./me/api-me.route.js
+     * @name        me
      */
-    router.use('/application', require('./application/api-application.route.js')(server));
-
-    /**
-     * @followRoute ./tournament/api-tournament.route.js
-     * @name        tournament
-     */
-    router.use('/tournament', require('./tournament/api-tournament.route.js')(server));
-
-    /**
-     * @followRoute ./beer/api-beer.route.js
-     * @name        beer
-     */
-    router.use('/beer', require('./beer/api-beer.route.js')(server));
+    router.use('/me', require('./me/api-me.route.js')(server));
 
     return router;
 };

@@ -9,9 +9,10 @@ module.exports = function(server) {
      * @name /
      * @method GET
      * @role user
+     * @role admin
      */
     router.get('/', function (req, res) {
-        controller.readTournaments(req.getUserId(), function(err, data) {
+        controller.readTournaments(req.user.id, function(err, data) {
             server.helpers.response(req, res, err, data);
         });
     });
