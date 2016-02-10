@@ -6,6 +6,15 @@ module.exports = function(server) {
     var waterfall = require('promise-waterfall');
     var generatePassword = require('password-generator');
 
+    function setUserLimitation(users) {
+        if (!users) {
+            return users;
+        }
+        ((!_.isArray(users)) ? [users] : users).forEach(function(user) {
+            user.userLimitation = user.getLimitation();
+        });
+    }
+
     function getApplications(user) {
         var appId = [];
         if (user.applications) {
@@ -28,7 +37,17 @@ module.exports = function(server) {
      * @returns {Object} Promise
      */
     function readUsers( /*, callback*/ ) {
-        return User.find(server.helpers.getCallback(arguments));
+        var callback = server.helpers.getCallback(arguments);
+        return q.promise(function(resolve, reject) {
+            User.find().then(function(user) {
+                setUserLimitation(user);
+                resolve(user);
+                return callback(null, user);
+            }, function(err) {
+                reject(err);
+                return callback(err);
+            });
+        });
     }
 
     /**
@@ -38,7 +57,17 @@ module.exports = function(server) {
      * @returns {Object} Promise
      */
     function readUserById(id /*, callback*/ ) {
-        return User.findById(id, server.helpers.getCallback(arguments));
+        var callback = server.helpers.getCallback(arguments);
+        return q.promise(function(resolve, reject) {
+            User.findById(id).then(function(user) {
+                setUserLimitation(user);
+                resolve(user);
+                return callback(null, user);
+            }, function(err) {
+                reject(err);
+                return callback(err);
+            });
+        });
     }
 
     /**
@@ -87,6 +116,7 @@ module.exports = function(server) {
         return q.promise(function(resolve, reject) {
             waterfall(tasks).then(function(user) {
                 server.console.log('User creation success');
+                setUserLimitation(user);
                 callback(null, user);
                 resolve(user);
             }, function(err) {
@@ -153,10 +183,13 @@ module.exports = function(server) {
                         return (user.applications.indexOf(application) < 0);
                     });
                 }
-                return user.save(callback).then(function(data) {
-                    callback(null, data);
+                return user.save(callback).then(function(user) {
+                    setUserLimitation(user);
+                    callback(null, user);
+                    return user;
                 }, function(err) {
                     callback(err);
+                    return err;
                 });
             }
         ]);
@@ -200,6 +233,7 @@ module.exports = function(server) {
             User.find({
                 email: email
             }).then(function(users) {
+                setUserLimitation(users);
                 var currentUser = _.first(users);
                 if (users.length === 1) {
                     resolve(currentUser);

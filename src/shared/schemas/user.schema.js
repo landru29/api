@@ -4,6 +4,7 @@ module.exports = function(server) {
     var bcrypt = require('bcrypt-nodejs');
     var mongoose = require('mongoose');
     var Schema = mongoose.Schema;
+    var _ = require('lodash');
     var uuid = require('node-uuid');
     require('mongoose-type-email');
 
@@ -24,6 +25,9 @@ module.exports = function(server) {
             required: 'Email address is required',
             validate: [validateEmail, 'Please fill a valid email address'],
             match: [/^\w+([\.\-]?\w+)*@\w+([\.\-]?\w+)*(\.\w{2,3})+$/, 'Please fill a valid email address']
+        },
+        _userLimitation: {
+            type: Schema.Types.Mixed
         },
         password: {
             type: String,
@@ -104,6 +108,11 @@ module.exports = function(server) {
             role: this.role,
             applications: this.applications
         }, 'access-token');
+    };
+
+    UserSchema.methods.getLimitation = function(key) {
+        var limitation = _.extend({}, server.config['user-limitation'], this._userLimitation);
+        return key ? limitation[key] : limitation;
     };
 
     UserSchema.methods.generateRefreshToken = function() {
