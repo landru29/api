@@ -67,8 +67,8 @@ App.prototype.connectDb = function (callback) {
         (this.config.application.database.host + ':') +
         (this.config.application.database.port + '/') +
         (this.config.application.database.name);
-
-    this.mongoose.instance = mongoose.connect(this.options.mongooseConnectionChain ? this.options.mongooseConnectionChain : mongooseConnectionChain, callback);
+    this.mongoDbConnectionChain = this.options.mongooseConnectionChain ? this.options.mongooseConnectionChain : mongooseConnectionChain;
+    this.mongoose.instance = mongoose.connect(this.mongoDbConnectionChain, callback);
 };
 
 

@@ -14,6 +14,7 @@ module.exports = function(options) {
   var cookieParser = require('cookie-parser');
   var bodyParser = require('body-parser');
   var session = require('express-session');
+  var MongoDBStore = require('connect-mongodb-session')(session);
 
   var App = require('./app.js');
 
@@ -38,10 +39,21 @@ module.exports = function(options) {
     expressApp.set('view engine', 'ejs'); // set up ejs for templating
     expressApp.set('views', __dirname + '/../views');
 
-    // required for passport
+    var store = new MongoDBStore(
+      {
+        uri: application.mongoDbConnectionChain,
+        collection: 'mySessions'
+      });
+
+    // required to remember redirection
     expressApp.use(session({
-      secret: application.config.application.session.secret
+      secret: application.config.application.session.secret,
+      cookie: {
+        maxAge: 1000 * 60 * 10 // 10 minutes
+      },
+      store: store
     })); // session secret
+
     expressApp.use(application.middlewares.passport.initialize());
     //expressApp.use(application.middlewares.passport.session()); // persistent login sessions
     expressApp.use(flash()); // use connect-flash for flash messages stored in session

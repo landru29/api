@@ -40,6 +40,7 @@ clean:
 	$(DEL) node_modules
 	$(DEL) build
 	$(DEL) dist
+	$(DEL) $(ARCHIVE)
 
 babel:
 	$(BABEL) src -d lib
