@@ -91,9 +91,6 @@ App.prototype.configureSchemas = function() {
     var self = this;
     Object.keys(this.mongoose.schemas).forEach(function(name) {
         self.helpers.mongoosePlugin(self.mongoose.schemas[name].schema, name);
-        if (self.mongoose.schemas[name]) {
-            self.mongoose.schemas[name].postLoad();
-        }
     });
 };
 

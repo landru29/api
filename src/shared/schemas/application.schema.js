@@ -19,10 +19,7 @@ module.exports = function (/*server*/) {
         }
     });
 
-    var processRelations = function() {};
-
     return {
-        schema: ApplicationSchema,
-        postLoad: processRelations
+        schema: ApplicationSchema
     };
 };

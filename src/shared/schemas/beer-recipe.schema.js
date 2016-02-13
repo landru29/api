@@ -12,24 +12,16 @@ module.exports = function (/*server*/) {
         },
         steps: {
           type: Array,
-          //required: false,//"steps are required",
           default: []
         },
         date: {
             type: Date,
-            required: true,
+            required: false,
             default: Date.now
-        },
-        userId: {
-            type: String,
-            required: true
         }
     });
 
-    var processRelations = function() {};
-
     return {
-        schema: RecipeSchema,
-        postLoad: processRelations
+        schema: RecipeSchema
     };
 };

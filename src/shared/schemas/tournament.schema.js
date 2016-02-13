@@ -25,10 +25,7 @@ module.exports = function (/*server*/) {
         }
     });
 
-    var processRelations = function() {};
-
     return {
-        schema: TournamentSchema,
-        postLoad: processRelations
+        schema: TournamentSchema
     };
 };

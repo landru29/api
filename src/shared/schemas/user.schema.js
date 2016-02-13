@@ -127,11 +127,7 @@ module.exports = function(server) {
         return this.active;
     };
 
-    var processRelations = function() {
-    };
-
     return {
-        schema: UserSchema,
-        postLoad: processRelations
+        schema: UserSchema
     };
 };

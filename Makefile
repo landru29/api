@@ -49,6 +49,7 @@ grunt:
 	$(GRUNT)
 
 tests: install
+	$(NPM) run check
 	$(NPM) test
 
 configure: config.json info
