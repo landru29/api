@@ -16,23 +16,30 @@
         <h1><span class="fa fa-lock"></span> Noopy Authentication</h1>
 
         <p>Login or Register with:</p>
-
-        <a href="/login?appId=<%= encodeURIComponent(appId) %>" class="btn btn-default">
-            <span class="fa fa-user"></span>
-            Local Login
-        </a>
+        <% if (localConnectEn) { %>
+            <a href="/login?appId=<%= encodeURIComponent(appId) %>" class="btn btn-default">
+                <span class="fa fa-user"></span>
+                Local Login
+            </a>
+        <% }
+          if (localSignupEn) { %>
         <a href="/signup?appId=<%= encodeURIComponent(appId) %>" class="btn btn-default">
             <span class="fa fa-user"></span>
             Local Signup
         </a>
+        <% }
+          if (facebookEn) { %>
         <a href="/auth/facebook?appId=<%= encodeURIComponent(appId) %>" class="btn btn-primary">
             <span class="fa fa-facebook"></span>
             Facebook
         </a>
+        <% }
+          if (googleEn) { %>
          <a href="/auth/google?appId=<%= encodeURIComponent(appId) %>" class="btn btn-danger">
              <span class="fa fa-google-plus"></span>
              Google
          </a>
+         <% } %>
     </div>
 
 </div>
