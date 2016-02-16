@@ -70,7 +70,7 @@ module.exports = function(server) {
                 name: data.name,
                 id: data.id
             } : data;
-            server.helpers.response(req, res, err, data);
+            server.helpers.response(req, res, err, recipe);
         });
     });
 

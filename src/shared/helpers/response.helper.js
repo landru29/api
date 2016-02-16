@@ -1,4 +1,4 @@
-module.exports = function (server) {
+module.exports = function (/*server*/) {
     'use strict';
     return function (req, res, err, data, decorator) {
         if (err) {
