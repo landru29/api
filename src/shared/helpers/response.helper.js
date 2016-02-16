@@ -22,7 +22,6 @@ module.exports = function (server) {
                 response.perPage = decorator.pagination.limit;
                 response.count = decorator.pagination.count;
             }
-            server.console.log(decorator);
             res.header('Cache-Control', 'no-cache');
             res.json(response);
         }

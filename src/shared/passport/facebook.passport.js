@@ -15,7 +15,7 @@ module.exports = function(server) {
       clientID        : server.config.connect.facebookAuth.clientID,
       clientSecret    : server.config.connect.facebookAuth.clientSecret,
       callbackURL     : server.config.connect.facebookAuth.callbackURL,
-      profileFields   : ['id', 'email']
+      profileFields   : ['id', 'email', 'name']
 
   },
 

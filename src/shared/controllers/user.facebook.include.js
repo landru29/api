@@ -7,7 +7,7 @@ module.exports = function(server) {
     var generatePassword = require('password-generator');
 
     /**
-    * Get user by facebook ID and chack duplicates
+    * Get user by facebook ID and check duplicates
     * @param   {Object} facbookProfile Facebook profile
     * @returns {Object} Promise
     */
@@ -16,6 +16,8 @@ module.exports = function(server) {
         var callback = server.helpers.getCallback(arguments);
         return q.promise(function(resolve, reject){
             var email = _.first(facebookProfile.emails);
+            var name = [facebookProfile.name.givenName, facebookProfile.name.middleName, facebookProfile.name.familyName].join(' ');
+
             if ((email) && (email.value)) {
                 q.all([
                     User.findOne({ 'email' : email.value }),
@@ -26,6 +28,7 @@ module.exports = function(server) {
                         server.console.log('Two entries found');
                         if (users[0].id === users[1].id) {
                             server.console.log('Entries are equal');
+                            users[0].name = name;
                             resolve(users[0]);
                             return callback(null, users[0]);
                         } else {
@@ -33,6 +36,7 @@ module.exports = function(server) {
                             User.remove({
                                 _id: users[1]._id
                             }).then(function(){
+                                users[0].name = name;
                                 resolve(users[0]);
                                 return callback(null, users[0]);
                             }, function(err) {
@@ -44,6 +48,7 @@ module.exports = function(server) {
                     // No facebook
                     if ((users[0]) && (!users[1])) {
                         server.console.log('No facebook');
+                        users[0].name = name;
                         resolve(users[0]);
                         return callback(null, users[0]);
                     }
@@ -52,6 +57,7 @@ module.exports = function(server) {
                         server.console.log('No email');
                         users[1].email = email.value;
                         users[1].password = generatePassword(20, false);
+                        users[1].name = name;
                         resolve(users[1]);
                         return callback(null, users[1]);
                     }

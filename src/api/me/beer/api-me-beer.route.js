@@ -32,7 +32,19 @@ module.exports = function(server) {
             if (opts) {
                 opts.count = data[1];
             }
-            server.helpers.response(req, res, null, data[0], {pagination: opts});
+            //server.console.log(data[0]);
+            var recipes = data[0].map(function(recipe) {
+                return {
+                    author: req.user.name,
+                    steps: recipe.steps,
+                    date: recipe.date,
+                    modifiedAt: recipe.modifiedAt,
+                    createdAt: recipe.createdAt,
+                    name: recipe.name,
+                    id: recipe.id
+                };
+            });
+            server.helpers.response(req, res, null, recipes, {pagination: opts});
         }, function(err) {
             server.helpers.response(req, res, err, null);
         });
@@ -49,6 +61,15 @@ module.exports = function(server) {
      */
     router.get('/read/:id', function (req, res) {
         controller.readRecipeById(req.user, req.params.id, function(err, data) {
+            var recipe =  (_.isObject(data)) ? {
+                author: req.user.name,
+                steps: data.steps,
+                date: data.date,
+                modifiedAt: data.modifiedAt,
+                createdAt: data.createdAt,
+                name: data.name,
+                id: data.id
+            } : data;
             server.helpers.response(req, res, err, data);
         });
     });

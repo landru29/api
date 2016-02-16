@@ -26,6 +26,9 @@ module.exports = function(server) {
             validate: [validateEmail, 'Please fill a valid email address'],
             match: [/^\w+([\.\-]?\w+)*@\w+([\.\-]?\w+)*(\.\w{2,3})+$/, 'Please fill a valid email address']
         },
+        name: {
+            type: String
+        },
         _userLimitation: {
             type: Schema.Types.Mixed
         },
