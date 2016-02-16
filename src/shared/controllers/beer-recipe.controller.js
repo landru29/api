@@ -5,24 +5,44 @@ module.exports = function(server) {
     var waterfall = require('promise-waterfall');
     var userConfig = server.config['user-limitation'] ? server.config['user-limitation'] : {};
 
-
     /**
      * Read all recipes
      * @param   {Object} user     Curent user
      * @param {function} callback Callback function
      * @returns {Object} Promise
      */
-    function readRecipes(user /*, callback*/ ) {
+    function readRecipes(user, opts /*, callback*/ ) {
         var callback = server.helpers.getCallback(arguments);
         return q.promise(function(resolve, reject) {
             BeerRecipe.find({
                 user: user
-            }).then(function(recipes) {
+            }, undefined, opts).then(function(recipes) {
                 recipes.forEach(function(recipe) {
                     recipe.author = user.name;
                 });
                 resolve(recipes);
                 return callback(null, recipes);
+            }, function(err) {
+                reject(err);
+                callback(err);
+            });
+        });
+    }
+
+    /**
+     * Count all recipes
+     * @param   {Object} user     Curent user
+     * @param {function} callback Callback function
+     * @returns {Object} Promise
+     */
+    function countRecipes(user /*, callback*/ ) {
+        var callback = server.helpers.getCallback(arguments);
+        return q.promise(function(resolve, reject) {
+            BeerRecipe.count({
+                user: user
+            }).then(function(size) {
+                resolve(size);
+                return callback(null, size);
             }, function(err) {
                 reject(err);
                 callback(err);
@@ -45,7 +65,7 @@ module.exports = function(server) {
                 _id: id
             }).then(function(recipe) {
                 resolve(recipe);
-                return callback(recipe);
+                return callback(null, recipe);
             }, function(err) {
                 reject(err);
                 return callback(err);
@@ -161,6 +181,7 @@ module.exports = function(server) {
         readRecipeById: readRecipeById,
         createRecipe: createRecipe,
         deleteRecipe: deleteRecipe,
-        updateRecipe: updateRecipe
+        updateRecipe: updateRecipe,
+        countRecipes: countRecipes
     };
 };

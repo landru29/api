@@ -1,4 +1,4 @@
-module.exports = function (/*server*/) {
+module.exports = function (server) {
     'use strict';
     return function (req, res, err, data, decorator) {
         if (err) {
@@ -17,6 +17,12 @@ module.exports = function (/*server*/) {
             if (decorator && decorator.message && decorator.message.success) {
                 response.message = decorator.message.success;
             }
+            if (decorator && decorator.pagination  && decorator.pagination.limit) {
+                response.page = 1 + decorator.pagination.skip / decorator.pagination.limit;
+                response.perPage = decorator.pagination.limit;
+                response.count = decorator.pagination.count;
+            }
+            server.console.log(decorator);
             res.header('Cache-Control', 'no-cache');
             res.json(response);
         }

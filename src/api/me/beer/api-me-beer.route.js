@@ -3,18 +3,40 @@ module.exports = function(server) {
     var express = require('express');
     var router = express.Router();
     var controller = server.controllers.beerRecipe;
+    var _ = require('lodash');
+    var q = require('q');
 
     /**
      * Read All recipe
      * @name /list
      * @method GET
+     * @param {String} page @url Page number
+     * @param {String} perPage @url Page length
      * @role user
      * @role admin
      */
     router.get('/list', function (req, res) {
-        controller.readRecipes(req.user, function(err, data) {
-            server.helpers.response(req, res, err, data);
+        var opts;
+        if ((!_.isUndefined(req.query.page)) || (!_.isUndefined(req.query.perPage))) {
+            var perPage = !_.isUndefined(req.query.perPage) ? req.query.perPage : 5;
+            var page = req.query.page ? req.query.page : 1;
+            opts = {
+                limit: perPage,
+                skip: (page -1) * perPage
+            };
+        }
+        q.all([
+            controller.readRecipes(req.user, opts),
+            controller.countRecipes(req.user)
+        ]).then(function(data) {
+            if (opts) {
+                opts.count = data[1];
+            }
+            server.helpers.response(req, res, null, data[0], {pagination: opts});
+        }, function(err) {
+            server.helpers.response(req, res, err, null);
         });
+
     });
 
     /**
