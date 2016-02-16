@@ -17,6 +17,7 @@ module.exports = function (/*server*/) {
             if (decorator && decorator.message && decorator.message.success) {
                 response.message = decorator.message.success;
             }
+            res.header('Cache-Control', 'no-cache');
             res.json(response);
         }
     };

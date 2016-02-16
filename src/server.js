@@ -36,6 +36,8 @@ module.exports = function(options) {
     expressApp.use(cookieParser()); // read cookies (needed for auth)
     expressApp.use(bodyParser()); // get information from html forms
 
+    expressApp.set('etag', false);
+
     expressApp.set('view engine', 'ejs'); // set up ejs for templating
     expressApp.set('views', __dirname + '/../views');
 
