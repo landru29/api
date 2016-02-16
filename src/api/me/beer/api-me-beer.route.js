@@ -90,7 +90,16 @@ module.exports = function(server) {
             date: req.body.date,
             steps: 'string' === typeof req.body.steps ? JSON.parse(req.body.steps) : req.body.steps
         } , function(err, data) {
-            server.helpers.response(req, res, err, data);
+            var recipe =  (_.isObject(data)) ? {
+                author: req.user.name,
+                steps: data.steps,
+                date: data.date,
+                modifiedAt: data.modifiedAt,
+                createdAt: data.createdAt,
+                name: data.name,
+                id: data.id
+            } : data;
+            server.helpers.response(req, res, err, recipe);
         });
     });
 
@@ -125,7 +134,16 @@ module.exports = function(server) {
             date: req.body.date,
             steps: req.body.steps
         }, function(err, data) {
-            server.helpers.response(req, res, err, data, {message: {success: 'Recipe updated'}});
+            var recipe =  (_.isObject(data)) ? {
+                author: req.user.name,
+                steps: data.steps,
+                date: data.date,
+                modifiedAt: data.modifiedAt,
+                createdAt: data.createdAt,
+                name: data.name,
+                id: data.id
+            } : data;
+            server.helpers.response(req, res, err, recipe, {message: {success: 'Recipe updated'}});
         });
     });
 
