@@ -124,7 +124,7 @@ module.exports = function(server) {
      * @param {String}  id          @url  @required  Recipe ID
      * @param {String}  name        @body            Recipe name
      * @param {String}  date        @body            Recipe date
-     * @param {Boolean} steps       @body            steps
+     * @param {String} steps        @body            steps
      * @role admin
      * @role user
      */

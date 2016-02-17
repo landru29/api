@@ -7,7 +7,8 @@ module.exports = function (server) {
         var referer = req.headers.referer || req.headers.origin;
         if (referer) {
             var refererUrl = url.parse(referer);
-            var allowedOrigin = refererUrl.protocol + '//' + refererUrl.hostname + ':' + refererUrl.port;
+            var allowedOrigin = refererUrl.protocol + '//' + refererUrl.hostname +
+                (refererUrl.port ? ':' + refererUrl.port : '');
             server.console.log('allowingCrossDomain on ' + allowedOrigin);
             res.header('Access-Control-Allow-Origin', allowedOrigin);
             res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE');
