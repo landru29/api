@@ -90,6 +90,7 @@ module.exports = function(server) {
             date: req.body.date,
             steps: 'string' === typeof req.body.steps ? JSON.parse(req.body.steps) : req.body.steps
         } , function(err, data) {
+            server.console.log('ERROR', err);
             var recipe =  (_.isObject(data)) ? {
                 author: req.user.name,
                 steps: data.steps,

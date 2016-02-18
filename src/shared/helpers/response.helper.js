@@ -2,11 +2,14 @@ module.exports = function (/*server*/) {
     'use strict';
     return function (req, res, err, data, decorator) {
         if (err) {
+            var message = ('string' === typeof(err) ? err : '') +
+                          ('string' === typeof(err.status) ? err.status : '');
+            var code = err.code ? err.code : 403;
             var result = {
                 status: 'error',
-                message: decorator && decorator.message && decorator.message.err ? decorator.message.err : 'An error occured (' + err.toString() + ')'
+                message: decorator && decorator.message && decorator.message.err ? decorator.message.err : 'An error occured (' + message + ')'
             };
-            res.status(403).json(result);
+            res.status(code).json(result);
         } else {
             var response = {
                 status: 'success'

@@ -98,14 +98,17 @@ module.exports = function(server) {
                             beerRecipe.date = recipeData.date;
                             return beerRecipe.save();
                         } else {
-                            return q.thenReject('Two many recipes');
+                            server.console.log('REJECTION');
+                            return q.reject({code:402, status:'Two many recipes'});
                         }
                     }
                 ]
             ).then(function(createdRecipe) {
+                server.console.log('RESOLVE', createdRecipe);
                 resolve(createdRecipe);
                 return callback(null, createdRecipe);
             }, function(err) {
+                server.console.log('REJECT', err);
                 reject(err);
                 return callback(err);
             });
