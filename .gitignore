@@ -39,3 +39,5 @@ config.json
 config.dev.json
 
 src/assets/data/*.css
+
+uploaded

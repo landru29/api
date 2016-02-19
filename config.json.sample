@@ -85,5 +85,10 @@
     },
     "user-limitation": {
         "beer-recipe-create": 5
+    },
+    "upload": {
+        "quiz": {
+            "path": "./uploaded/quizz"
+        }
     }
 }
