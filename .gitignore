@@ -41,3 +41,5 @@ config.dev.json
 src/assets/data/*.css
 
 uploaded
+
+.babel-grunt

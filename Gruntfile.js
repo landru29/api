@@ -19,7 +19,8 @@ module.exports = function (grunt) {
             appDoc: './doc',
             appApi: './lib',
             bower: './bower_components',
-            viewsApi: './views'
+            viewsApi: './views',
+            apiSrc: './src'
         },
 
         /*************************************************/
@@ -33,23 +34,12 @@ module.exports = function (grunt) {
                     hostname: "0.0.0.0",
                     livereload: true
                 }
-            },
-            prod_check: {
-                options: {
-                    bases: [__dirname + '/<%= project.distDoc%>'],
-                    port: 3000,
-                    hostname: "0.0.0.0",
-                    livereload: true
-                }
             }
         },
 
         open: { // open application in Chrome
             dev: {
                 path: 'http://localhost:<%= express.dev.options.port%>'
-            },
-            prod_check: {
-                path: 'http://localhost:<%= express.prod_check.options.port%>'
             }
         },
 
@@ -65,11 +55,9 @@ module.exports = function (grunt) {
                     livereload: true
                 }
             },
-            prod_check: {
-                files: ['<%= project.distDoc%>/**'],
-                options: {
-                    livereload: true
-                }
+            api: {
+                files: ['<%= project.apiSrc%>/**'],
+                tasks: ['babel-compil']
             }
         },
 
@@ -100,6 +88,40 @@ module.exports = function (grunt) {
                 ]
             }
         },
+
+        babel: {
+            options: {
+                sourceMap: true,
+                presets: ['es2015']
+            },
+            api: {
+                files: [{
+                    expand: true,
+                    cwd: '<%= project.apiSrc%>',
+                    src: ['**/*.js'],
+                    dest: '<%= project.appApi%>/',
+                    ext: '.js'
+                }]
+            }
+        },
+
+        nodemon: {
+            api: {
+                script: './launcher.js',
+                options: {
+                    watch: ['.babel-grunt']
+                }
+            }
+        },
+
+        concurrent: {
+              api: {
+                tasks: ['nodemon:api', 'watch:api'],
+                options: {
+                  logConcurrentOutput: true
+                }
+              }
+          },
 
         auto_install: {
             local: {},
@@ -201,14 +223,6 @@ module.exports = function (grunt) {
         },
 
         cssmin: {
-            /*dist: {
-                files: [
-                    {
-                        dest: '<%= project.distDoc%>/styles/styles.min.css',
-                        src: ['<%= project.appDoc%>/styles/*.css', '<%= project.build%>/styles/*.css']
-                    }
-                ]
-            }*/
         },
 
         filerev: { // change the name of files to avoid browser cache issue
@@ -388,7 +402,22 @@ module.exports = function (grunt) {
         'watch:dev'
     ]);
 
+    grunt.registerTask('dev-api', [
+        'babel:api',
+        'concurrent:api'
+    ]);
+
+    grunt.registerTask('babelDone', 'Create a finish task file for babel', function() {
+       grunt.file.write('./.babel-grunt', 'done');
+    });
+
+    grunt.registerTask('babel-compil', [
+        'babel:api',
+        'babelDone'
+    ]);
+
     grunt.registerTask('dist-api', [
+        'babel:api',
         'copy:api',
         'file-creator:api',
         'auto_install:api'
