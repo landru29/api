@@ -27,5 +27,11 @@ module.exports = function (server) {
      */
     router.use('/me', require('./me/api-me.route.js')(server));
 
+    /**
+     * @followRoute ./public/api-public.route.js
+     * @name        public
+     */
+    router.use('/public', require('./public/api-public.route.js')(server));
+
     return router;
 };

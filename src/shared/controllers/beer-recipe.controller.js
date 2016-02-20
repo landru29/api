@@ -91,24 +91,28 @@ module.exports = function(server) {
                     },
                     function(counter) {
                         if (counter<limit) {
-                            var beerRecipe = new BeerRecipe();
-                            beerRecipe.name = recipeData.name;
-                            beerRecipe.steps = recipeData.steps;
+                            var beerRecipe = _.extend(
+                                new BeerRecipe(),
+                                _.pick(
+                                    recipeData,
+                                    [
+                                        'name',
+                                        'steps',
+                                        'date'
+                                    ]
+                                )
+                            );
                             beerRecipe.user = user;
-                            beerRecipe.date = recipeData.date;
                             return beerRecipe.save();
                         } else {
-                            server.console.log('REJECTION');
                             return q.reject({code:402, status:'Two many recipes'});
                         }
                     }
                 ]
             ).then(function(createdRecipe) {
-                server.console.log('RESOLVE', createdRecipe);
                 resolve(createdRecipe);
                 return callback(null, createdRecipe);
             }, function(err) {
-                server.console.log('REJECT', err);
                 reject(err);
                 return callback(err);
             });
