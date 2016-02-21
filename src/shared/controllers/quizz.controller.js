@@ -24,6 +24,27 @@ module.exports = function (server) {
     }
 
     /**
+     * Get random questions
+     * @param   {Number} count  Number of questions
+     * @param   {Object} filter Filter questions
+     * @param {function} callback Callback function
+     * @returns {Object} Promise
+     */
+    function pickQuizz(count, filter /*, callback*/) {
+        var thisfilter = _.extend({published: true}, filter ? filter : {});
+        var callback = server.helpers.getCallback(arguments);
+        return q.promise(function(resolve, reject) {
+            Quizz.random(thisfilter, count).then(function(quizz) {
+                resolve(quizz);
+                return callback(null, quizz);
+            }, function(err) {
+                reject(err);
+                callback(err);
+            });
+        });
+    }
+
+    /**
      * Get an Quizz by ID
      * @param {String} id         Quizz Identifier
      * @param {function} callback Callback function
@@ -127,7 +148,7 @@ module.exports = function (server) {
         var callback = server.helpers.getCallback(arguments);
         return q.promise(function (resolve, reject) {
             readQuizzById(id).then(
-                function(Quizz) {
+                function(quizz) {
                     _.extend(
                         quizz,
                         _.pick(
@@ -161,11 +182,11 @@ module.exports = function (server) {
 
     return {
         readQuizz: readQuizz,
-        createQuizz: createQuizz,
         readQuizzById: readQuizzById,
         createQuizz: createQuizz,
         deleteQuizz: deleteQuizz,
         updateQuizz: updateQuizz,
-        countQuizz: countQuizz
+        countQuizz: countQuizz,
+        pickQuizz: pickQuizz
     };
 };

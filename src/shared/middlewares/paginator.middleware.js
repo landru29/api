@@ -7,7 +7,7 @@ module.exports = function (server) {
         req.pagination.page = req.query.page ? req.query.page : 1;
         req.pagination.mongo = {
             limit: req.pagination.perPage,
-            skip:  (req.pagination.page -1) * req.pagination.limit
+            skip:  (req.pagination.page -1) * req.pagination.perPage
         };
         next();
     };

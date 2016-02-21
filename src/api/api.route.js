@@ -33,5 +33,11 @@ module.exports = function (server) {
      */
     router.use('/public', require('./public/api-public.route.js')(server));
 
+    /**
+     * @followRoute ./contributor/api-contributor.route.js
+     * @name        contributor
+     */
+    router.use('/contributor', require('./contributor/api-contributor.route.js')(server));
+
     return router;
 };

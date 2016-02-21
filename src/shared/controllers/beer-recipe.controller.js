@@ -4,6 +4,7 @@ module.exports = function(server) {
     var BeerRecipe = server.getModel('BeerRecipe');
     var waterfall = require('promise-waterfall');
     var userConfig = server.config['user-limitation'] ? server.config['user-limitation'] : {};
+    var _ = require('lodash');
 
     /**
      * Read all recipes

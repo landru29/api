@@ -4,27 +4,29 @@ module.exports = function(server) {
     var router = express.Router();
     var controller = server.controllers.quizz;
     var _ = require('lodash');
-    var q = require('q');
 
     /**
      * Read All quizz
      * @name /
      * @method GET
+     * @param {String} count @url Number of questions
+     * @param {String} level @url level
      */
     router.get('/', function (req, res) {
-        q.all([
-            controller.readQuizz(req.pagination.mongo),
-            controller.countQuizz()
-        ]).then(function(data) {
-            var pagination = _.extend({count: data[1]}, req.pagination);
-            var questions = data[0].map(function(question) {
+        var filter = req.query.level ? {
+            level: req.query.level
+        }: null;
+        controller.pickQuizz(
+            req.query.count ? req.query.count : 10,
+            filter
+        ).then(function(data) {
+            var questions = data.map(function(question) {
                 return _.pick(
                         question,
                         [
                             'explaination',
                             'image',
                             'level',
-                            'published',
                             'tags',
                             'text',
                             'choices',
@@ -33,36 +35,9 @@ module.exports = function(server) {
                         ]
                     );
                 });
-            server.helpers.response(req, res, null, data[0], {pagination: pagination});
+            server.helpers.response(req, res, null, questions);
         }, function(err) {
             server.helpers.response(req, res, err);
-        });
-    });
-
-    /**
-     * Create a question
-     * @name /
-     * @method POST
-     * @role contributor
-     * @role admin
-     * @param  {String} text          @body   Question
-     * @param  {String} explaination  @body   Explaination of the answer
-     * @param  {String} choices       @body   Choices (JSON)
-     * @param  {String} level         @body   Difficulty level
-     * @param {Boolean} published     @body   Publishing flag
-     * @param  {String} tags          @body   Tags
-     */
-    router.post('/', function (req, res) {
-        controller.createQuizz(req.body , function(err, data) {
-            var quizz =  (_.isObject(data)) ? {
-                text: data.text,
-                explaination: data.explaination,
-                choices: data.choices,
-                level: data.level,
-                published: data.published,
-                tags: data.tags
-            } : data;
-            server.helpers.response(req, res, err, quizz);
         });
     });
 
