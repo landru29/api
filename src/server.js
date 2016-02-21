@@ -60,6 +60,8 @@ module.exports = function(options) {
     //expressApp.use(application.middlewares.passport.session()); // persistent login sessions
     expressApp.use(flash()); // use connect-flash for flash messages stored in session
 
+    expressApp.use(application.middlewares.paginator);
+
     /**
      * @followRoute ./server.route.js
      */

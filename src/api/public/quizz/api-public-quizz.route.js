@@ -4,6 +4,7 @@ module.exports = function(server) {
     var router = express.Router();
     var controller = server.controllers.quizz;
     var _ = require('lodash');
+    var q = require('q');
 
     /**
      * Read All quizz
@@ -11,8 +12,30 @@ module.exports = function(server) {
      * @method GET
      */
     router.get('/', function (req, res) {
-        controller.readQuizz(function(err, data) {
-            server.helpers.response(req, res, err, data);
+        q.all([
+            controller.readQuizz(req.pagination.mongo),
+            controller.countQuizz()
+        ]).then(function(data) {
+            var pagination = _.extend({count: data[1]}, req.pagination);
+            var questions = data[0].map(function(question) {
+                return _.pick(
+                        question,
+                        [
+                            'explaination',
+                            'image',
+                            'level',
+                            'published',
+                            'tags',
+                            'text',
+                            'choices',
+                            'scoringTotal',
+                            'id'
+                        ]
+                    );
+                });
+            server.helpers.response(req, res, null, data[0], {pagination: pagination});
+        }, function(err) {
+            server.helpers.response(req, res, err);
         });
     });
 

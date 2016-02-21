@@ -29,6 +29,14 @@ module.exports = function (/*server*/) {
         }
     });
 
+    QuizzSchema.set('toJSON', {
+        transform: function(doc, ret) {
+            ret.scoringTotal = ret.choices.reduce(function(total, elt){
+                return total + (elt.scoring ? elt.scoring : 0);
+            }, 0);
+        }
+    });
+
     return {
         schema: QuizzSchema
     };

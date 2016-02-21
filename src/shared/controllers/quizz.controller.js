@@ -7,14 +7,13 @@ module.exports = function (server) {
 
     /**
      * Read all quizz
-     * @param   {String} userId   Curent user
      * @param {function} callback Callback function
      * @returns {Object} Promise
      */
-    function readQuizz( /*, callback*/) {
+    function readQuizz(opts /*, callback*/) {
         var callback = server.helpers.getCallback(arguments);
         return q.promise(function(resolve, reject) {
-            Quizz.find({}).then(function(quizz) {
+            Quizz.find({}, undefined, opts).then(function(quizz) {
                 resolve(quizz);
                 return callback(null, quizz);
             }, function(err) {
@@ -26,7 +25,6 @@ module.exports = function (server) {
 
     /**
      * Get an Quizz by ID
-     * @param {String} userId     Curent user
      * @param {String} id         Quizz Identifier
      * @param {function} callback Callback function
      * @returns {Object} Promise
@@ -52,12 +50,11 @@ module.exports = function (server) {
 
     /**
      * Create an Quizz
-     * @param   {String} userId         Curent user
      * @param   {Object} QuizzData Quizz {name, date, sport}
      * @param {function} callback       Callback function
      * @returns {Object} Promise
      */
-    function createQuizz(userId, QuizzData /*, callback*/) {
+    function createQuizz(QuizzData /*, callback*/) {
         var callback = server.helpers.getCallback(arguments);
         return q.promise(function (resolve, reject) {
             var quizz = new Quizz();
@@ -88,8 +85,25 @@ module.exports = function (server) {
     }
 
     /**
+     * Count all questions
+     * @param {function} callback Callback function
+     * @returns {Object} Promise
+     */
+    function countQuizz(/*, callback*/ ) {
+        var callback = server.helpers.getCallback(arguments);
+        return q.promise(function(resolve, reject) {
+            Quizz.count({}).then(function(size) {
+                resolve(size);
+                return callback(null, size);
+            }, function(err) {
+                reject(err);
+                callback(err);
+            });
+        });
+    }
+
+    /**
      * Delete a Quizz
-     * @param   {String} userId   Curent user
      * @param   {String} id       Quizz Identifier
      * @param {function} callback Callback function
      * @returns {Object} Promise
@@ -104,7 +118,6 @@ module.exports = function (server) {
 
     /**
      * Update a Quizz
-     * @param   {String} userId         Curent user
      * @param   {String} id             Quizz Identifier
      * @param   {Object} QuizzData Quizz {name, sport, date}
      * @param {function} callback       Callback function
@@ -148,9 +161,11 @@ module.exports = function (server) {
 
     return {
         readQuizz: readQuizz,
+        createQuizz: createQuizz,
         readQuizzById: readQuizzById,
         createQuizz: createQuizz,
         deleteQuizz: deleteQuizz,
-        updateQuizz: updateQuizz
+        updateQuizz: updateQuizz,
+        countQuizz: countQuizz
     };
 };

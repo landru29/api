@@ -1,5 +1,7 @@
 module.exports = function (/*server*/) {
     'use strict';
+    var _ = require('lodash');
+    
     return function (req, res, err, data, decorator) {
         if (err) {
             var message = ('string' === typeof(err) ? err : '') +
@@ -20,10 +22,8 @@ module.exports = function (/*server*/) {
             if (decorator && decorator.message && decorator.message.success) {
                 response.message = decorator.message.success;
             }
-            if (decorator && decorator.pagination  && decorator.pagination.limit) {
-                response.page = 1 + decorator.pagination.skip / decorator.pagination.limit;
-                response.perPage = decorator.pagination.limit;
-                response.count = decorator.pagination.count;
+            if (decorator && decorator.pagination) {
+                _.extend(response, _.pick(decorator.pagination, ['page', 'perPage', 'count']));
             }
             res.header('Cache-Control', 'no-cache');
             res.json(response);

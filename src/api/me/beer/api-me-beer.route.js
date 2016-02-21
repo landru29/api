@@ -16,39 +16,31 @@ module.exports = function(server) {
      * @role admin
      */
     router.get('/list', function (req, res) {
-        var opts;
-        if ((!_.isUndefined(req.query.page)) || (!_.isUndefined(req.query.perPage))) {
-            var perPage = !_.isUndefined(req.query.perPage) ? req.query.perPage : 5;
-            var page = req.query.page ? req.query.page : 1;
-            opts = {
-                limit: perPage,
-                skip: (page -1) * perPage
-            };
-        }
         q.all([
-            controller.readRecipes(req.user, opts),
+            controller.readRecipes(req.user, req.pagination.mongo),
             controller.countRecipes(req.user)
         ]).then(function(data) {
-            if (opts) {
-                opts.count = data[1];
-            }
-            //server.console.log(data[0]);
+            var pagination = _.extend({count: data[1]}, req.pagination);
             var recipes = data[0].map(function(recipe) {
-                return {
-                    author: req.user.name,
-                    steps: recipe.steps,
-                    date: recipe.date,
-                    modifiedAt: recipe.modifiedAt,
-                    createdAt: recipe.createdAt,
-                    name: recipe.name,
-                    id: recipe.id
-                };
+                return _.extend(
+                    {author: req.user.name},
+                    _.pick(
+                        recipe,
+                        [
+                            'steps',
+                            'date',
+                            'modifiedAt',
+                            'createdAt',
+                            'name',
+                            'id'
+                        ]
+                    )
+                );
             });
-            server.helpers.response(req, res, null, recipes, {pagination: opts});
+            server.helpers.response(req, res, null, recipes, {pagination: pagination});
         }, function(err) {
-            server.helpers.response(req, res, err, null);
+            server.helpers.response(req, res, err);
         });
-
     });
 
     /**
